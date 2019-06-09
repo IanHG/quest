@@ -122,9 +122,7 @@ struct sprite_container
             return sprite_proxy{ &(m_container[i]) };
          }
       }
-      std::cout << " COULD NOT GET SPRITE : " << c << std::endl;
-      assert(false);
-      return sprite_proxy{ nullptr };
+      return sprite_proxy{ &(m_container[0]) };
    }
 
    static void create()

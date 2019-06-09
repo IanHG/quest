@@ -124,7 +124,7 @@ struct gui_type
    }
 } gui;
 
-enum game_type : int {field, actor};
+enum game_type : int {field, actor, item};
       
 //struct environment_type
 struct field_type
@@ -159,7 +159,9 @@ struct actor_type
    int  x = 0;
    int  y = 0;
    sprite_proxy sprite = sprite_container::instance->get_sprite(' ');
-   bool noclip = false;
+   bool flying   = false;
+   bool noclip   = false;
+   bool godmode  = false;
 
    void draw(WINDOW* win = gui.get_main())
    {
@@ -215,8 +217,11 @@ struct game_map_type
       x_size = max_col;
       y_size = max_line;
 
+      x_offset = gui.main->xmax / 2 - x_size / 2;
+      y_offset = gui.main->ymax / 2 - y_size / 2;
+
       m_map        = field_ptr_type   { new field_type[max_line * max_col] };
-      m_map_window = border_window_ptr{ new border_window{gui.main->win, y_size + 2, x_size + 2, 5, 5} };
+      m_map_window = border_window_ptr{ new border_window{gui.main->win, y_size + 2, x_size + 2, x_offset, y_offset} };
       
       int iline = 0;
       game_type aof;
@@ -257,6 +262,11 @@ struct game_map_type
          return false;
       }
 
+      if(actor.flying)
+      {
+         return true;
+      }
+
       if(!m_map[y + y_size * x].passable)
       {
          return false;
@@ -282,12 +292,6 @@ struct game_map_type
    }
 };
 
-
-bool is_win(const actor_type& player, const actor_type& grail)
-{
-   return (player.x == grail.x) && (player.y == grail.y);
-}
-
 void initialize_ncurses()
 {
    // initialize locale to system's default:
@@ -303,11 +307,11 @@ void initialize_ncurses()
    {
       start_color();
       init_pair(DEFAULT_PAIR, COLOR_WHITE,  COLOR_BLACK);
-      init_pair(PLAYER_PAIR,  COLOR_CYAN,  COLOR_BLACK);
+      init_pair(PLAYER_PAIR,  COLOR_MAGENTA,  COLOR_BLACK);
       init_pair(GRAIL_PAIR,   COLOR_YELLOW, COLOR_BLACK);
-      init_pair(ENEMY_PAIR,   COLOR_RED,    COLOR_BLACK);
-      init_pair(WATER_PAIR,   COLOR_BLUE,   COLOR_BLACK);
-      init_pair(TREE_PAIR,   COLOR_GREEN,   COLOR_BLACK);
+      init_pair(ENEMY_PAIR,   COLOR_WHITE,    COLOR_RED);
+      init_pair(WATER_PAIR,   COLOR_CYAN,   COLOR_BLUE);
+      init_pair(TREE_PAIR,   COLOR_RED,   COLOR_GREEN);
    }
    
    clear();
@@ -412,10 +416,6 @@ int main(int argc, char* argv[])
       }
    }, kb};
    
-   actor_type grail {10, 20, sprite_container::instance->get_sprite('G')};
-   //grail .draw();
-   //player.draw();
-   
    try
    {
       /******************************************
@@ -442,11 +442,6 @@ int main(int argc, char* argv[])
          // Handle keyboard events
          kb.read_event();
          kb.handle_events();
-
-         if(is_win(player, grail))
-         {
-            gui.message(" YOU WIN\n");
-         }
 
          gui.refresh();
          

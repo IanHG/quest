@@ -1,20 +1,31 @@
-20 20
-WWWWWWWWWW
-WWWWWW
-WWWWW              M
-WWW              MMM
-                MMMM
-                  MM 
-                   
-                   
-      MMM      
-     MMMMMM      WW
-       MMMMM      WW
-         MMMM      W
-          MMM      
-                   
-                   
-               FFF   
-              FF FFF  
-               FFFF   
-                   
+30 50
+WWWWWWWWWW                                   MMMMM
+WWWWWW                                         MMM
+WWWWW              MMMM                         MM
+WWW              MMMMMMMM                     MMMM
+                MMMMMMFFFFFF     FFF            MM
+                  MMM FF   FFF FFFFFF            M
+                     FFFFFFFFFFFF  FFF
+                        FFFFFFFF    F
+      MMM          WWW  
+     MMMMMM      WWWWW
+       MMMMM      WWWWW
+         MMMM      WWW
+          MMM      MWM
+                  MMWM
+                  MMWWM
+    WWW        FFF MMWMMM  
+   WWWWW      FF FFF MMMMMM
+    WWWW       FFFF   MMMM
+      w                              FFF
+                                    FFF
+                                     FFFFF
+                                    FFFFF
+                                     FFFFF
+               O                        FFFF
+                  FFFFFF         FFF
+   G                FFFFFFF       FFFF FF
+         FFFF        FFFFFFFFF      FFFFF FF
+       FFFF         FFFFFFFF       FFFFF F FF
+      FFFFFF         FFFFFFFFF         FFFFFFF
+       FFFFFFF   FFFFFFFFFFFFFFF  FFFFFFFFFFFFF
