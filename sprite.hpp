@@ -14,13 +14,21 @@
 #define GRAIL    'G'
 #define ACTOR    'A'
 #define ORC      'O'
+#define TORCH     '*'
+
+#define BINARY_ZERO ' '
+#define BINARY_ONE  ' '
 
 #define DEFAULT_COLOR 1
 #define PLAYER_COLOR  2
 #define GRAIL_COLOR   3
 #define ENEMY_COLOR   4
 #define WATER_COLOR   5
-#define TREE_COLOR    6
+#define SMALL_WATER_COLOR   6
+#define TREE_COLOR    7
+#define BINARY_ZERO_COLOR 8
+#define BINARY_ONE_COLOR  9
+#define TORCH_COLOR  10
 
 /**
  *
@@ -105,9 +113,23 @@ struct sprite_container
       // Water
       m_code      .emplace_back('W');
       m_container .emplace_back(sprite_type{WATER, WATER_COLOR});
+      // Water
+      m_code      .emplace_back('w');
+      m_container .emplace_back(sprite_type{WATER, SMALL_WATER_COLOR});
       // Tree/forest
       m_code      .emplace_back('F');
       m_container .emplace_back(sprite_type{TREE, TREE_COLOR});
+      // Tree/forest
+      m_code      .emplace_back('*');
+      m_container .emplace_back(sprite_type{TORCH, TORCH_COLOR});
+
+      // 0
+      m_code      .emplace_back('0');
+      m_container .emplace_back(sprite_type{BINARY_ZERO, BINARY_ONE_COLOR});
+      // 1
+      m_code      .emplace_back('1');
+      m_container .emplace_back(sprite_type{BINARY_ONE, BINARY_ZERO_COLOR});
+
       // Orc
       m_code      .emplace_back('O');
       m_container .emplace_back(sprite_type{ORC, ENEMY_COLOR});

@@ -27,7 +27,11 @@
 #define GRAIL_PAIR  3
 #define ENEMY_PAIR  4
 #define WATER_PAIR  5
-#define TREE_PAIR  6
+#define SMALL_WATER_PAIR  6
+#define TREE_PAIR  7
+#define BINARY_ZERO_PAIR 8
+#define BINARY_ONE_PAIR  9
+#define TORCH_PAIR  10
 
 bool is_move_okay(int y, int x);
 void draw_map(void);
@@ -146,12 +150,33 @@ struct field_type
          case 'M':
          case 'W':
          case 'F':
+         case '*':
             return field_type{sprite_container::instance->get_sprite(c), false};
          case ' ':
+         case 'w':
+         case 'm':
+         case '0':
+         case '1':
          default:
             return field_type{sprite_container::instance->get_sprite(c), true};
       }
    }
+};
+
+struct item_type
+{
+   int x = 0;
+   int y = 0;
+   sprite_proxy sprite = sprite_container::instance->get_sprite(' ');
+
+   void draw(WINDOW* win)
+   {
+      this->sprite->draw(win, x, y);
+   }
+   
+   //void interact(const actor_type& actor)
+   //{
+   //}
 };
 
 struct actor_type
@@ -159,6 +184,7 @@ struct actor_type
    int  x = 0;
    int  y = 0;
    sprite_proxy sprite = sprite_container::instance->get_sprite(' ');
+   
    bool flying   = false;
    bool noclip   = false;
    bool godmode  = false;
@@ -167,6 +193,11 @@ struct actor_type
    {
       this->sprite->draw(win, x, y);
    }
+};
+
+struct player_type
+   :  public actor_type
+{
 };
 
 game_type actor_or_field(char c)
@@ -180,6 +211,9 @@ game_type actor_or_field(char c)
       case 'W':
       case 'F':
       case ' ':
+      case '0':
+      case '1':
+      case '*':
       default:
          return game_type::field;
    }
@@ -198,7 +232,7 @@ struct game_map_type
    int x_offset = 0;
    int y_offset = 0;
       
-   std::string                   m_map_name   = std::string{"default.map"};
+   std::string                   m_map_name   = std::string{"binary.map"};
    std::unique_ptr<field_type[]> m_map        = field_ptr_type{nullptr};
    border_window_ptr             m_map_window = border_window_ptr{nullptr};
 
@@ -307,11 +341,15 @@ void initialize_ncurses()
    {
       start_color();
       init_pair(DEFAULT_PAIR, COLOR_WHITE,  COLOR_BLACK);
-      init_pair(PLAYER_PAIR,  COLOR_MAGENTA,  COLOR_BLACK);
+      init_pair(PLAYER_PAIR,  COLOR_CYAN,  COLOR_BLACK);
       init_pair(GRAIL_PAIR,   COLOR_YELLOW, COLOR_BLACK);
       init_pair(ENEMY_PAIR,   COLOR_WHITE,    COLOR_RED);
       init_pair(WATER_PAIR,   COLOR_CYAN,   COLOR_BLUE);
+      init_pair(SMALL_WATER_PAIR,   COLOR_BLUE,   COLOR_BLACK);
       init_pair(TREE_PAIR,   COLOR_RED,   COLOR_GREEN);
+      init_pair(BINARY_ZERO_PAIR,   COLOR_BLACK, COLOR_BLACK);
+      init_pair(BINARY_ONE_PAIR ,   COLOR_BLACK, COLOR_RED);
+      init_pair(TORCH_PAIR ,   COLOR_YELLOW, COLOR_BLACK);
    }
    
    clear();
