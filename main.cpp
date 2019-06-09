@@ -15,7 +15,7 @@
 #include "sprite.hpp"
 
 #define GRASS    ' '
-#define EMPTY    '.'
+#define EMPTY    ' '
 #define WATER	  '~'
 #define MOUNTAIN '^'
 #define PLAYER	  '@'
@@ -27,6 +27,7 @@
 #define GRAIL_PAIR  3
 #define ENEMY_PAIR  4
 #define WATER_PAIR  5
+#define TREE_PAIR  6
 
 bool is_move_okay(int y, int x);
 void draw_map(void);
@@ -38,10 +39,17 @@ struct border_window
    int xmax           = 0;
    int ymax           = 0;
 
-   border_window(int height, int width, int  startx, int starty)
+   border_window(WINDOW* parent_win, int height, int width, int  startx, int starty)
    {
       // create border window
-      win_border = create_newwin(height, width, starty, startx);
+      if(parent_win)
+      {
+         win_border = derwin(parent_win, height, width, starty, startx);
+      }
+      else
+      {
+         win_border = create_newwin(height, width, starty, startx);
+      }
       box(win_border, 0, 0);
       wrefresh(win_border);
 
@@ -81,13 +89,13 @@ struct gui_type
    {
       int height  = LINES;
 	   int width   = COLS * 0.8;
-      main = border_window_ptr{ new border_window(height, width, 0, 0) };
+      main = border_window_ptr{ new border_window(nullptr, height, width, 0, 0) };
 
       int half_height  = LINES / 2 - 4;
       int status_width = COLS - width;
-      lore   = border_window_ptr{ new border_window(half_height, status_width, width, 0) };
-      stats  = border_window_ptr{ new border_window(half_height, status_width, width, half_height) };
-      status = border_window_ptr{ new border_window(LINES - 2*half_height , status_width, width, 2*half_height) };
+      lore   = border_window_ptr{ new border_window(nullptr, half_height, status_width, width, 0) };
+      stats  = border_window_ptr{ new border_window(nullptr, half_height, status_width, width, half_height) };
+      status = border_window_ptr{ new border_window(nullptr, LINES - 2*half_height , status_width, width, 2*half_height) };
    }
 
    WINDOW* get_main()
@@ -119,12 +127,26 @@ struct gui_type
 //struct environment_type
 struct field_type
 {
-   sprite_proxy sprite   = sprite_container::instance->get_sprite('D');
+   sprite_proxy sprite   = sprite_container::instance->get_sprite(' ');
    bool         passable = true;
    
    void draw(WINDOW* win, int x, int y)
    {
       sprite->draw(win, x, y);
+   }
+
+   static field_type create(char c)
+   {
+      switch(c)
+      {
+         case 'M':
+         case 'W':
+         case 'F':
+            return field_type{sprite_container::instance->get_sprite(c), false};
+         case ' ':
+         default:
+            return field_type{sprite_container::instance->get_sprite(c), true};
+      }
    }
 };
 
@@ -132,7 +154,7 @@ struct actor_type
 {
    int  x = 0;
    int  y = 0;
-   sprite_proxy sprite = sprite_container::instance->get_sprite('D');
+   sprite_proxy sprite = sprite_container::instance->get_sprite(' ');
 
    void draw(WINDOW* win = gui.get_main())
    {
@@ -143,6 +165,7 @@ struct actor_type
 struct game_map_type
 {
    using border_window_ptr = typename gui_type::border_window_ptr;
+   using field_ptr_type    = std::unique_ptr<field_type[]>;
 
    // Size of map
    int x_size = 0;
@@ -152,12 +175,11 @@ struct game_map_type
    int x_offset = 0;
    int y_offset = 0;
       
-   std::string                   m_map_name = std::string{"default.map"};
-   std::unique_ptr<field_type[]> m_map      = std::unique_ptr<field_type[]>{nullptr};
-   border_window_ptr             m_border_window_ptr;
+   std::string                   m_map_name   = std::string{"default.map"};
+   std::unique_ptr<field_type[]> m_map        = field_ptr_type{nullptr};
+   border_window_ptr             m_map_window = border_window_ptr{nullptr};
 
    game_map_type()
-      :  m_border_window_ptr(gui.main)
    {
    }
 
@@ -166,11 +188,23 @@ struct game_map_type
       std::ifstream map_file{"maps/" + m_map_name};
       std::string str;
       std::getline(map_file, str);
+      int max_line, max_col;
+      std::istringstream s_str(str);
+      s_str >> max_line >> max_col;
+      x_size = max_col;
+      y_size = max_line;
+
+      m_map        = field_ptr_type{ new field_type[max_line * max_col] };
+      m_map_window = border_window_ptr{ new border_window{gui.main->win, y_size + 2, x_size + 2, 5, 5} };
       
       int iline = 0;
-      while(std::getline(map_file, str))
+      while(std::getline(map_file, str) && (iline < max_line))
       {
-         std::cout << str << std::endl;
+         auto ncol = std::min(max_col, int(str.size()));
+         for(int i = 0; i < ncol; ++i)
+         {
+            m_map[iline + i * max_line] = field_type::create(str[i]);
+         }
          ++iline;
       }
 
@@ -182,16 +216,15 @@ struct game_map_type
 
    bool is_move_okay(const actor_type& actor, int y, int x)
    {
-      //if((y < 0) && (y > y_size) && (x < 0) && (x > x_size))
-      if((y < 0) || (y >= m_border_window_ptr->ymax) || (x < 0) || (x >= m_border_window_ptr->xmax))
+      if((y < 0) || (y >= y_size) || (x < 0) || (x >= x_size))
       {
          return false;
       }
 
-      //if(!m_map[y + y_size * x].env.passable)
-      //{
-      //   return false;
-      //}
+      if(!m_map[y + y_size * x].passable)
+      {
+         return false;
+      }
 
       return true;
    }
@@ -202,9 +235,10 @@ struct game_map_type
       {
          for(int y = 0; y < y_size; ++y)
          {
-            m_map[y + y_size * x].draw(m_border_window_ptr->win, x + x_offset, y + y_offset);
+            m_map[y + y_size * x].draw(m_map_window->win, x, y);
          }
       }
+      m_map_window->refresh();
    }
 };
 
@@ -229,10 +263,11 @@ void initialize_ncurses()
    {
       start_color();
       init_pair(DEFAULT_PAIR, COLOR_WHITE,  COLOR_BLACK);
-      init_pair(PLAYER_PAIR,  COLOR_GREEN,  COLOR_BLACK);
+      init_pair(PLAYER_PAIR,  COLOR_CYAN,  COLOR_BLACK);
       init_pair(GRAIL_PAIR,   COLOR_YELLOW, COLOR_BLACK);
       init_pair(ENEMY_PAIR,   COLOR_RED,    COLOR_BLACK);
       init_pair(WATER_PAIR,   COLOR_BLUE,   COLOR_BLACK);
+      init_pair(TREE_PAIR,   COLOR_GREEN,   COLOR_BLACK);
    }
    
    clear();
@@ -263,9 +298,7 @@ int main(int argc, char* argv[])
    gui.initialize();
 
    /* initialize the quest map */
-   //draw_map();
-
-   actor_type    player{0, 0, sprite_container::instance->get_sprite('P')};
+   actor_type    player{0, 6, sprite_container::instance->get_sprite('P')};
    game_map_type game_map;
    game_map.load_map();
    
@@ -350,6 +383,7 @@ int main(int argc, char* argv[])
        ******************************************/
       while (true)
       {
+         game_map.draw();
          player.draw();
          
          // Handle keyboard events

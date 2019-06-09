@@ -3,12 +3,14 @@
 #define QUEST_SPRITE_HPP_INCLUDED
 
 #include <curses.h>
+#include <cassert>
 
 #define GRASS    ' '
-#define EMPTY    '.'
+#define EMPTY    ' '
 #define WATER	  '~'
 #define MOUNTAIN '^'
 #define PLAYER	  '@'
+#define TREE     '*'
 #define GRAIL    'G'
 #define ACTOR    'A'
 #define ORC      'O'
@@ -18,6 +20,7 @@
 #define GRAIL_COLOR   3
 #define ENEMY_COLOR   4
 #define WATER_COLOR   5
+#define TREE_COLOR    6
 
 /**
  *
@@ -47,7 +50,23 @@ struct sprite_type
  **/
 struct sprite_proxy
 {
-   const sprite_type* const m_sprite;
+   const sprite_type* m_sprite;
+
+   sprite_proxy(const sprite_type* const sprite)
+      :  m_sprite(sprite)
+   {
+   }
+
+   sprite_proxy(sprite_proxy&& other)
+      :  m_sprite(other.m_sprite)
+   {
+   }
+
+   sprite_proxy& operator=(sprite_proxy&& other)
+   {
+      m_sprite = other.m_sprite;
+      return *this;
+   }
 
    const sprite_type* const operator->() const
    {
@@ -70,7 +89,10 @@ struct sprite_container
    {
       // Initialize ncurses colours
       initialize_colors();
-   
+      
+      // Empty sprite
+      m_code      .emplace_back(' ');
+      m_container .emplace_back(sprite_type{EMPTY, DEFAULT_COLOR});
       // Player sprite
       m_code      .emplace_back('P');
       m_container .emplace_back(sprite_type{PLAYER, PLAYER_COLOR});
@@ -83,6 +105,9 @@ struct sprite_container
       // Water
       m_code      .emplace_back('W');
       m_container .emplace_back(sprite_type{WATER, WATER_COLOR});
+      // Tree/forest
+      m_code      .emplace_back('F');
+      m_container .emplace_back(sprite_type{TREE, TREE_COLOR});
       // Orc
       m_code      .emplace_back('O');
       m_container .emplace_back(sprite_type{ORC, ENEMY_COLOR});
@@ -97,6 +122,8 @@ struct sprite_container
             return sprite_proxy{ &(m_container[i]) };
          }
       }
+      std::cout << " COULD NOT GET SPRITE : " << c << std::endl;
+      assert(false);
       return sprite_proxy{ nullptr };
    }
 
