@@ -7,6 +7,7 @@
 #include <thread>
 #include <chrono>
 #include <sstream>
+#include <fstream>
 
 #include "keyboard.hpp"
 #include "keyboard_combo.hpp"
@@ -150,18 +151,30 @@ struct game_map_type
    // Off set when drawing
    int x_offset = 0;
    int y_offset = 0;
-   
-   std::unique_ptr<field_type[]> m_map;
+      
+   std::string                   m_map_name = std::string{"default.map"};
+   std::unique_ptr<field_type[]> m_map      = std::unique_ptr<field_type[]>{nullptr};
    border_window_ptr             m_border_window_ptr;
 
    game_map_type()
-      :  x_size(10)
-      ,  y_size(10)
-      ,  m_map{new field_type[x_size * y_size]}
-      ,  m_border_window_ptr(gui.main)
+      :  m_border_window_ptr(gui.main)
    {
+   }
+
+   void load_map()
+   {
+      std::ifstream map_file{"maps/" + m_map_name};
+      std::string str;
+      std::getline(map_file, str);
       
-   }  
+      int iline = 0;
+      while(std::getline(map_file, str))
+      {
+         std::cout << str << std::endl;
+         ++iline;
+      }
+
+   }
    
    ~game_map_type()
    {
@@ -254,6 +267,7 @@ int main(int argc, char* argv[])
 
    actor_type    player{0, 0, sprite_container::instance->get_sprite('P')};
    game_map_type game_map;
+   game_map.load_map();
    
    keyboard& kb = keyboard::instance();
    auto move_up = [&player, &game_map](const char&) {
