@@ -123,12 +123,16 @@ struct gui_type
       status->refresh();
    }
 } gui;
+
+enum game_type : int {field, actor};
       
 //struct environment_type
 struct field_type
 {
    sprite_proxy sprite   = sprite_container::instance->get_sprite(' ');
    bool         passable = true;
+   bool         pushable = false;
+   bool         toxic    = false;
    
    void draw(WINDOW* win, int x, int y)
    {
@@ -155,12 +159,29 @@ struct actor_type
    int  x = 0;
    int  y = 0;
    sprite_proxy sprite = sprite_container::instance->get_sprite(' ');
+   bool noclip = false;
 
    void draw(WINDOW* win = gui.get_main())
    {
       this->sprite->draw(win, x, y);
    }
 };
+
+game_type actor_or_field(char c)
+{
+   switch(c)
+   {
+      case 'P':
+      case 'O':
+         return game_type::actor;
+      case 'M':
+      case 'W':
+      case 'F':
+      case ' ':
+      default:
+         return game_type::field;
+   }
+}
 
 struct game_map_type
 {
@@ -194,16 +215,26 @@ struct game_map_type
       x_size = max_col;
       y_size = max_line;
 
-      m_map        = field_ptr_type{ new field_type[max_line * max_col] };
+      m_map        = field_ptr_type   { new field_type[max_line * max_col] };
       m_map_window = border_window_ptr{ new border_window{gui.main->win, y_size + 2, x_size + 2, 5, 5} };
       
       int iline = 0;
+      game_type aof;
       while(std::getline(map_file, str) && (iline < max_line))
       {
          auto ncol = std::min(max_col, int(str.size()));
          for(int i = 0; i < ncol; ++i)
          {
-            m_map[iline + i * max_line] = field_type::create(str[i]);
+            aof = actor_or_field(str[i]);
+            switch(aof)
+            {
+               case game_type::field:
+                  m_map[iline + i * max_line] = field_type::create(str[i]);
+                  break;
+               case game_type::actor:
+                  m_map[iline + i * max_line] = field_type::create(' ');
+                  break;
+            }
          }
          ++iline;
       }
@@ -216,6 +247,11 @@ struct game_map_type
 
    bool is_move_okay(const actor_type& actor, int y, int x)
    {
+      if(actor.noclip)
+      {
+         return true;
+      }
+
       if((y < 0) || (y >= y_size) || (x < 0) || (x >= x_size))
       {
          return false;
@@ -238,6 +274,10 @@ struct game_map_type
             m_map[y + y_size * x].draw(m_map_window->win, x, y);
          }
       }
+   }
+
+   void refresh()
+   {
       m_map_window->refresh();
    }
 };
@@ -359,10 +399,22 @@ int main(int argc, char* argv[])
    keyboard_combo kbc{std::vector<char>{'i', 'd', 'd', 'q', 'd'}, [](){
       gui.message("LOL DOOM\n");
    }, kb};
+   keyboard_combo kbc2{std::vector<char>{'i', 'd', 'c', 'l', 'i', 'p'}, [&player](){
+      if(!player.noclip)
+      {
+         gui.message("Nothing can stop me!\n");
+         player.noclip = true;
+      }
+      else
+      {
+         gui.message("I'm bound by reality!\n");
+         player.noclip = false;
+      }
+   }, kb};
    
    actor_type grail {10, 20, sprite_container::instance->get_sprite('G')};
-   grail .draw();
-   player.draw();
+   //grail .draw();
+   //player.draw();
    
    try
    {
@@ -384,7 +436,8 @@ int main(int argc, char* argv[])
       while (true)
       {
          game_map.draw();
-         player.draw();
+         player.draw(game_map.m_map_window->win);
+         game_map.refresh();
          
          // Handle keyboard events
          kb.read_event();
