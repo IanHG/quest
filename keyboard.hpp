@@ -9,7 +9,7 @@
 #include <unistd.h> // close
 #include <linux/input.h> // struct input_event
 
-#include "singleton.hpp"
+#include "util/Singleton.hpp"
 #include "event_handler.hpp"
 #include "blocking_queue.hpp"
 
@@ -19,7 +19,7 @@
 // * struct keyboard_state - represents keyboards current state
 // */
 //class keyboard_state
-//   : public singleton<keyboard_state>
+//   : public Singleton<keyboard_state>
 //{
 //   private:
 //      mutable std::mutex m_keystate_mutex;
@@ -59,7 +59,7 @@
  * struct keyboard_queue - represents keyboard event queue
  */
 class keyboard_queue
-   //: public singleton<keyboard_queue>
+   //: public Singleton<keyboard_queue>
    : public event_handler<char, void(const char&)>
    , private blocking_queue<char>
 {
@@ -105,7 +105,7 @@ class keyboard_queue
  *
  */
 class keyboard
-   :  public singleton<keyboard>
+   :  public Util::Singleton<keyboard>
    ,  public keyboard_queue
 {
    private:
