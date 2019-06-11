@@ -30,7 +30,7 @@ struct Environment
    function_type move_over = [](Actor&){};
    
    // Draw environment sprite
-   void draw(WINDOW* win, int x, int y)
+   void draw(WINDOW* win, int x, int y) const
    {
       sprite->draw(win, x, y);
    }
@@ -79,14 +79,15 @@ struct Map
    Map()  = default;
    ~Map() = default;
 
-   Map(Map&&) = default;
+   Map(Map&&)            = default;
+   Map& operator=(Map&&) = default;
    
    // Check move
-   bool isMoveOkay(const Actor& actor, int y, int x);
+   bool isMoveOkay(const Actor& actor, int y, int x) const;
 
    // Draw map
-   //void draw(WINDOW* win);
-   void draw();
+   //void draw(WINDOW* win) const;
+   void draw() const;
 
    // Refresh map framebuffer
    void refresh();

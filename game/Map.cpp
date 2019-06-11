@@ -49,7 +49,7 @@ Map Map::load(const std::string& map_name)
 /**
  * Check that move is ok
  **/
-bool Map::isMoveOkay(const Actor& actor, int y, int x)
+bool Map::isMoveOkay(const Actor& actor, int y, int x) const
 {
    if(actor.noclip)
    {
@@ -77,7 +77,7 @@ bool Map::isMoveOkay(const Actor& actor, int y, int x)
 /**
  * Draw map to framebuffer
  **/
-void Map::draw()
+void Map::draw() const
 {
    for(int x = 0; x < x_size; ++x)
    {

@@ -29,17 +29,21 @@ void Conversation::start(Player& player)
    //Conversation         conversation Conversation::load(this->tag);
 
    //mer.addEvent('1', [&conversation](const char&){
-   mer.addEvent('1', [](const char&){
+   bool end = true;
+   mer.addEvent('1', [&end](const char&){
       //conversation.option(1);
+      end = false;
    });
 
    mer.registerEvents(Engine::Keyboard::instance());
    
    //Engine::gameLoop([&conversation](){
-   //   conversation.update();
+   Engine::gameLoop([&end](){
+      //conversation.update();
+      Graphics::Gui::instance->message("MOFO!\n");
 
-   //   return !conversation.ended();
-   //});
+      return end;
+   });
 
    mer.deregisterEvents(Engine::Keyboard::instance());
 }

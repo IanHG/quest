@@ -45,7 +45,10 @@ struct EncounterProxy
    // Start encounter
    void start(Player& player)
    {
-      encounter->start(player);
+      if(encounter)
+      {
+         encounter->start(player);
+      }
    }
 };
 

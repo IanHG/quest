@@ -51,6 +51,8 @@ struct Gui
    void refresh()
    {
       main  ->refresh();
+      lore  ->refresh();
+      stats ->refresh();
       status->refresh();
    }
 

@@ -36,7 +36,7 @@ struct Actor
    virtual ~Actor() = 0;
    
    // Draw actor
-   void draw(WINDOW* win)
+   void draw(WINDOW* win) const
    {
       this->sprite->draw(win, x, y);
    }
@@ -86,24 +86,12 @@ struct Npc
    Npc()
    {
       Actor    ::type = Actor::npc;
+      Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite('O');
       Character::hp   = 10;
+      encounter       = EncounterProxy{ std::unique_ptr<Encounter>{ new Conversation{} } };
    }
 
-   void interact(Actor& other)
-   {
-      if(other.type == Actor::player)
-      {
-         if(hostile)
-         {
-            // Attack
-         }
-         else
-         {
-            // Conversation
-            //this->encounter.start(other);
-         }
-      }
-   }
+   void interact(Actor& other);
 };
 
 /**
@@ -112,6 +100,8 @@ struct Npc
 struct Player
    :  public Character
 {
+   bool interacting = false;
+
    Player()
    {
       Actor    ::type   = Actor::player;
@@ -120,22 +110,7 @@ struct Player
       Character::hp     = 10;
    }
    
-   void interact(Actor& other)
-   {
-      Npc* npc = dynamic_cast<Npc*>(&other);
-      if(npc)
-      {
-         if(npc->hostile)
-         {
-            // Attack
-         }
-         else
-         {
-            // Conversation
-            //npc->encounter.start(*this);
-         }
-      }
-   }
+   void interact(Actor& other);
 };
 
 
