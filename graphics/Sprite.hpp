@@ -16,6 +16,12 @@ namespace Graphics
  **/
 struct Sprite
 {
+   enum : int
+   {  empty  = 0
+   ,  player
+   ,  size
+   };
+
    char  symbol = EMPTY;
    int   color  = DEFAULT_COLOR;
 

@@ -11,10 +11,10 @@
 
 #include "keyboard.hpp"
 #include "keyboard_combo.hpp"
-#include "window.hpp"
 
 #include "graphics/Graphics.hpp"
 #include "graphics/Gui.hpp"
+#include "engine/Engine.hpp"
 #include "game/Actor.hpp"
 #include "game/Map.hpp"
 
@@ -32,35 +32,38 @@ int main(int argc, char* argv[])
 
    /* initialize curses */
    Graphics::initialize();
+   Engine  ::initialize();
 
    /* initialize the quest map */
-   Game::Player player{0, 6, sprite_container::instance->get_sprite('P')};
+   Game::Player player;
+   player.set_xy(0, 6);
+
    Game::Map game_map = Game::Map::load("binary.map");
    
    keyboard& kb = keyboard::instance();
    auto move_up = [&player, &game_map](const char&) {
-      if (game_map.is_move_okay(player, player.y - 1, player.x))
+      if (game_map.isMoveOkay(player, player.y - 1, player.x))
       {
          player.y = player.y - 1;
       }
    };
 
    auto move_down = [&player, &game_map](const char&) {
-	   if (game_map.is_move_okay(player, player.y + 1, player.x)) 
+	   if (game_map.isMoveOkay(player, player.y + 1, player.x)) 
       {
 		   player.y = player.y + 1;
 	   }
    };
 
    auto move_left = [&player, &game_map](const char&) {
-	   if (game_map.is_move_okay(player, player.y, player.x - 1)) 
+	   if (game_map.isMoveOkay(player, player.y, player.x - 1)) 
       {
 	      player.x = player.x - 1;
 	   }
    };
 
    auto move_right = [&player, &game_map](const char&) {
-	   if (game_map.is_move_okay(player, player.y, player.x + 1)) 
+	   if (game_map.isMoveOkay(player, player.y, player.x + 1)) 
       {
 		   player.x = player.x + 1;
 	   }
@@ -92,17 +95,17 @@ int main(int argc, char* argv[])
    //keyboard_queue& queue = keyboard_queue::instance();
    //
    keyboard_combo kbc{std::vector<char>{'i', 'd', 'd', 'q', 'd'}, [](){
-      gui.message("LOL DOOM\n");
+      Graphics::Gui::instance->message("LOL DOOM\n");
    }, kb};
    keyboard_combo kbc2{std::vector<char>{'i', 'd', 'c', 'l', 'i', 'p'}, [&player](){
       if(!player.noclip)
       {
-         gui.message("Nothing can stop me!\n");
+         Graphics::Gui::instance->message("Nothing can stop me!\n");
          player.noclip = true;
       }
       else
       {
-         gui.message("I'm bound by reality!\n");
+         Graphics::Gui::instance->message("I'm bound by reality!\n");
          player.noclip = false;
       }
    }, kb};
@@ -119,7 +122,7 @@ int main(int argc, char* argv[])
       auto next_frame = std::chrono::system_clock::now();
       auto last_frame = next_frame - frame;
 
-      //gui.message(braille_msg);
+      //Graphics::Gui::instance->message(braille_msg);
       
       /******************************************
        * MAIN GAME LOOP
@@ -134,13 +137,13 @@ int main(int argc, char* argv[])
          kb.read_event();
          kb.handle_events();
 
-         gui.refresh();
+         Graphics::Gui::instance->refresh();
          
          //std::stringstream s_str;
          //s_str << "Time: "  // just for monitoring purposes
          //      << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - last_frame).count()
          //      << "ms\n";
-         //gui.message(s_str.str());
+         //Graphics::Gui::instance->message(s_str.str());
          
          // Wait for next frame
          last_frame = next_frame;

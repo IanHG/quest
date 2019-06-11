@@ -5,6 +5,8 @@
 #include "../graphics/TypeDefs.hpp"
 #include "../graphics/Sprite.hpp"
 
+#include "Encounter.hpp"
+
 namespace Game
 {
 
@@ -14,6 +16,7 @@ struct Actor
    enum : int { error, player, npc };
 
    // Sprite
+   //Graphics::SpriteProxy sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::empty);
    Graphics::SpriteProxy sprite = Graphics::SpriteContainer::instance->getSprite(' ');
 
    // Position
@@ -36,6 +39,12 @@ struct Actor
    void draw(WINDOW* win)
    {
       this->sprite->draw(win, x, y);
+   }
+
+   void set_xy(int x, int y)
+   {
+      this->x = x;
+      this->y = y;
    }
    
    // Interact with other actor
@@ -71,8 +80,8 @@ inline Character::~Character()
 struct Npc
    :  public Character
 {
-   bool      hostile   = false;
-   //Encounter encounter; 
+   bool           hostile   = false;
+   EncounterProxy encounter; 
 
    Npc()
    {
@@ -102,8 +111,10 @@ struct Player
 {
    Player()
    {
-      Actor    ::type = Actor::player;
-      Character::hp   = 10;
+      Actor    ::type   = Actor::player;
+      //Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::player);
+      Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite('P');
+      Character::hp     = 10;
    }
    
    void interact(Actor& other)

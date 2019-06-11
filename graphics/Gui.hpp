@@ -63,7 +63,7 @@ struct Gui
    static gui_ptr_type instance;
 };
 
-inline Gui::instance = gui_ptr_type{nullptr};
+inline Gui::gui_ptr_type Gui::instance = gui_ptr_type{nullptr};
 
 } /* namespace Graphics */
 

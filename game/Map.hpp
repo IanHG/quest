@@ -2,6 +2,8 @@
 #ifndef QUEST_GAME_MAP_HPP_INCLUDED
 #define QUEST_GAME_MAP_HPP_INCLUDED
 
+#include <functional>
+
 #include "../graphics/Sprite.hpp"
 #include "../graphics/Window.hpp"
 #include "../game/Actor.hpp"
@@ -74,54 +76,19 @@ struct Map
    std::unique_ptr<Environment[]> m_map        = field_ptr_type{nullptr};
    border_window_ptr              m_map_window = border_window_ptr{nullptr};
 
-   Map()
-   {
-   }
+   Map()  = default;
+   ~Map() = default;
+
+   Map(Map&&) = default;
    
-   ~Map()
-   {
-   }
+   // Check move
+   bool isMoveOkay(const Actor& actor, int y, int x);
 
-   bool is_move_okay(const Actor& actor, int y, int x)
-   {
-      if(actor.noclip)
-      {
-         return true;
-      }
+   // Draw map
+   void draw();
 
-      if((y < 0) || (y >= y_size) || (x < 0) || (x >= x_size))
-      {
-         return false;
-      }
-
-      if(actor.flying)
-      {
-         return true;
-      }
-
-      if(!m_map[y + y_size * x].passable)
-      {
-         return false;
-      }
-
-      return true;
-   }
-
-   void draw()
-   {
-      for(int x = 0; x < x_size; ++x)
-      {
-         for(int y = 0; y < y_size; ++y)
-         {
-            m_map[y + y_size * x].draw(m_map_window->win, x, y);
-         }
-      }
-   }
-
-   void refresh()
-   {
-      m_map_window->refresh();
-   }
+   // Refresh map framebuffer
+   void refresh();
    
    // Load map from file
    static Map load(const std::string& map_name); //, const std::string& map_path = );
