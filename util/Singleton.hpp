@@ -10,8 +10,6 @@ namespace Util
 template<class A>
 class Singleton
 {
-   private:
-   
    protected:
       Singleton() = default;
 

@@ -9,6 +9,8 @@
 #include <tuple>
 #include <list>
 #include <utility>
+#include <chrono>
+#include <mutex>
 
 using namespace std::chrono_literals;
 
@@ -231,7 +233,7 @@ class event_registerable
 };
 
 template<class EVH>
-class event_registerer
+class EventRegisterer
 {
    using event_handler_t   = EVH;
    using uid_t             = typename event_handler_t::uid_t;
@@ -242,37 +244,89 @@ class event_registerer
    event_t           m_event;
    function_t        m_function;
    uid_t             m_registered_event; // = uid_t{0};
+   //mutex_t           m_mutex;
    
-   mutex_t           m_mutex;
    public:
-   event_registerer()
-   {
-   }
-
-   void set_event(const event_t& event, const function_t& function)
-   {
-      m_event     = event;
-      m_function  = function;
-   }
-
-   void register_event(event_handler_t& evh)
-   {
-      std::lock_guard<mutex_t> lock(m_mutex);
-      if(m_event) //&& !m_registered_event) 
+      EventRegisterer()
       {
-         m_registered_event = evh.register_function(m_event, m_function);
       }
-   }
 
-   void deregister_event(event_handler_t& evh)
-   {
-      std::lock_guard<mutex_t> lock(m_mutex);
-      //if(m_registered_event)
+      EventRegisterer(EventRegisterer&&) = default;
+
+      // Set event
+      void setEvent(const event_t& event, const function_t& function)
       {
-         evh.deregister_function(m_registered_event);
-         //m_registered_event = uid_t{0};
+         //std::lock_guard<mutex_t> lock(m_mutex);
+         m_event     = event;
+         m_function  = function;
       }
-   }
+      
+      // Register event with event handler
+      void registerEvent(event_handler_t& evh)
+      {
+         //std::lock_guard<mutex_t> lock(m_mutex);
+         if(m_event) //&& !m_registered_event) 
+         {
+            m_registered_event = evh.register_function(m_event, m_function);
+         }
+      }
+      
+      // Deregister/remove event from event handler
+      void deregisterEvent(event_handler_t& evh)
+      {
+         //std::lock_guard<mutex_t> lock(m_mutex);
+         //if(m_registered_event)
+         {
+            evh.deregister_function(m_registered_event);
+            //m_registered_event = uid_t{0};
+         }
+      }
+};
+
+template<class EVH>
+class MultiEventRegisterer
+{
+   using event_handler_t   = EVH;
+   using uid_t             = typename event_handler_t::uid_t;
+   using event_t           = typename event_handler_t::event_t;
+   using function_t        = typename event_handler_t::function_t;
+   using mutex_t           = std::recursive_mutex;
+   
+   std::vector<EventRegisterer<EVH> > m_events;
+   mutex_t                            m_mutex;
+
+   public:
+      MultiEventRegisterer()
+      {
+      }
+      
+      // Set event
+      void addEvent(const event_t& event, const function_t& function)
+      {
+         std::lock_guard<mutex_t> lock(m_mutex);
+         m_events.emplace_back();
+         m_events.back().setEvent(event, function);
+      }
+      
+      // Register event with event handler
+      void registerEvents(event_handler_t& evh)
+      {
+         std::lock_guard<mutex_t> lock(m_mutex);
+         for(auto& ev : m_events)
+         {
+            ev.registerEvent(evh);
+         }
+      }
+      
+      // Deregister/remove event from event handler
+      void deregisterEvents(event_handler_t& evh)
+      {
+         std::lock_guard<mutex_t> lock(m_mutex);
+         for(auto& ev : m_events)
+         {
+            ev.deregisterEvent(evh);
+         }
+      }
 };
 
 #endif /* EVENT_HANDLER_H_INCLUDED */

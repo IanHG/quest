@@ -2,8 +2,8 @@
 #ifndef QUEST_GRAPHICS_SPRITE_HPP_INCLUDED
 #define QUEST_GRAPHICS_SPRITE_HPP_INCLUDED
 
-
 #include "TypeDefs.hpp"
+
 #include <cassert>
 #include <vector>
 #include <memory>

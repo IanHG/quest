@@ -47,12 +47,16 @@ struct Gui
       delete status;
    }
 
+   // Refresh gui
    void refresh()
    {
       main  ->refresh();
       status->refresh();
    }
 
+   /**
+    * Gui instance
+    **/
    using gui_ptr_type = std::unique_ptr<Gui>;
 
    static void create()

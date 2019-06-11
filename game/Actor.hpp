@@ -106,6 +106,9 @@ struct Npc
    }
 };
 
+/**
+ * Player type
+ **/
 struct Player
    :  public Character
 {

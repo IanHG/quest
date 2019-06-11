@@ -71,8 +71,8 @@ struct Map
    // Off set when drawing
    int x_offset = 0;
    int y_offset = 0;
-      
-   std::string                    m_map_name   = std::string{"binary.map"};
+    
+   // Map
    std::unique_ptr<Environment[]> m_map        = field_ptr_type{nullptr};
    border_window_ptr              m_map_window = border_window_ptr{nullptr};
 
@@ -85,6 +85,7 @@ struct Map
    bool isMoveOkay(const Actor& actor, int y, int x);
 
    // Draw map
+   //void draw(WINDOW* win);
    void draw();
 
    // Refresh map framebuffer
