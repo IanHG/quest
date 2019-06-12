@@ -16,7 +16,6 @@ namespace Game
  **/
 struct Environment
 {
-   
    // Sprite
    Graphics::SpriteProxy sprite = Graphics::SpriteContainer::instance->getSprite(' ');
    

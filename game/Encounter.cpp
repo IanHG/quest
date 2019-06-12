@@ -5,6 +5,7 @@
 #include "../engine/Keyboard.hpp"
 
 #include "Actor.hpp"
+#include "Dialog.hpp"
 //#include "Conversation.hpp"
 //
 #include "../event_handler.hpp"
@@ -26,23 +27,20 @@ void Conversation::start(Player& player)
 {
    //ConversationPoint* conversation_point = this->conversation[0];
    MultiEventRegisterer<event_handler<char, void(const char&)> > mer;
-   //Conversation         conversation Conversation::load(this->tag);
+   Dialog dialog = Dialog::load(std::string("default"));
 
    //mer.addEvent('1', [&conversation](const char&){
-   bool end = true;
-   mer.addEvent('1', [&end](const char&){
-      //conversation.option(1);
-      end = false;
+   mer.addEvent('1', [&dialog](const char&){
+      dialog.option(1);
    });
 
    mer.registerEvents(Engine::Keyboard::instance());
    
    //Engine::gameLoop([&conversation](){
-   Engine::gameLoop([&end](){
-      //conversation.update();
-      Graphics::Gui::instance->message("MOFO!\n");
+   Engine::gameLoop([&dialog](){
+      dialog.draw();
 
-      return end;
+      return dialog.ended();
    });
 
    mer.deregisterEvents(Engine::Keyboard::instance());

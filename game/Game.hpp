@@ -72,24 +72,33 @@ inline void initialize()
    };
 
    auto move_down = [&player, &game_map](const char&) {
-	   if (game_map.isMoveOkay(player, player.y + 1, player.x)) 
+      if (!player.interacting && !instance->checkInteraction(player.x, player.y + 1))
       {
-		   player.y = player.y + 1;
-	   }
+	      if (game_map.isMoveOkay(player, player.y + 1, player.x)) 
+         {
+		      player.y = player.y + 1;
+	      }
+      }
    };
 
    auto move_left = [&player, &game_map](const char&) {
-	   if (game_map.isMoveOkay(player, player.y, player.x - 1)) 
+      if (!player.interacting && !instance->checkInteraction(player.x - 1, player.y))
       {
-	      player.x = player.x - 1;
-	   }
+	      if (game_map.isMoveOkay(player, player.y, player.x - 1)) 
+         {
+	         player.x = player.x - 1;
+	      }
+      }
    };
 
    auto move_right = [&player, &game_map](const char&) {
-	   if (game_map.isMoveOkay(player, player.y, player.x + 1)) 
+      if (!player.interacting && !instance->checkInteraction(player.x + 1, player.y))
       {
-		   player.x = player.x + 1;
-	   }
+	      if (game_map.isMoveOkay(player, player.y, player.x + 1)) 
+         {
+		      player.x = player.x + 1;
+	      }
+      }
    };
    
    kb.registerEvent('w',    move_up);
