@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <iostream>
 
 #include "../graphics/Gui.hpp"
 
@@ -25,12 +26,22 @@ Map Map::load(const std::string& map_name)
    
    map.x_size = max_col;
    map.y_size = max_line;
+   
+   auto window = Graphics::Gui::getWindow(Graphics::Gui::Window::MAIN);
 
-   map.x_offset = Graphics::Gui::instance->main->xmax / 2 - map.x_size / 2;
-   map.y_offset = Graphics::Gui::instance->main->ymax / 2 - map.y_size / 2;
+   map.x_offset = window->xMax() / 2 - map.x_size / 2;
+   map.y_offset = window->yMax() / 2 - map.y_size / 2;
 
-   map.m_map        = field_ptr_type   { new Environment[max_line * max_col] };
-   map.m_map_window = border_window_ptr{ new Graphics::BorderWindow{Graphics::Gui::instance->main->win, map.y_size + 2, map.x_size + 2, map.x_offset, map.y_offset} };
+   map.m_map          = EnvironmentArray{ new Environment[max_line * max_col] };
+   map.m_window_index = Graphics::Gui::createWindow
+      (  Graphics::Gui::Window::MAIN
+      ,  map.x_size + 2
+      ,  map.y_size + 2
+      ,  map.x_offset
+      ,  map.y_offset
+      );
+
+   std::cout << " MAP INDEX ! : " << map.m_window_index << std::endl;
    
    int iline = 0;
    while(std::getline(map_file, str) && (iline < max_line))
@@ -79,21 +90,15 @@ bool Map::isMoveOkay(const Actor& actor, int y, int x) const
  **/
 void Map::draw() const
 {
+   auto window = Graphics::Gui::getWindow(m_window_index)->getWindow();
+   
    for(int x = 0; x < x_size; ++x)
    {
       for(int y = 0; y < y_size; ++y)
       {
-         m_map[y + y_size * x].draw(m_map_window->win, x, y);
+         m_map[y + y_size * x].draw(window, x, y);
       }
    }
-}
-
-/**
- * Refresh screen
- **/
-void Map::refresh()
-{
-   m_map_window->refresh();
 }
 
 } /* namespace game */

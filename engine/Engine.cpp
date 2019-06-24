@@ -65,6 +65,7 @@ void gameLoop(const std::function<bool()>& function)
       
       // Refresh gui
       Graphics::Gui::instance->refresh();
+      Graphics::Gui::instance->draw();
       
       // Wait for next frame
       frame.waitForNextFrame();

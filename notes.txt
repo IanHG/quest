@@ -1,0 +1,3 @@
+Make entity system
+
+Make entity index, to get entities stored in GameState / Game

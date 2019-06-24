@@ -15,15 +15,39 @@ namespace Game
 
 struct Game
 {
+   using ActorVec = std::vector<Actor::SmartPtr>;
+
+   ActorVec actors;
    Player player;
-   Npc    npc;
+   //Npc    npc;
+   //Pushable push;
    Map    map;
    Cheats cheats;
 
-   void drawPlayer() const
+   int createActor(Actor::Type type, int x, int y)
    {
-      npc   .draw(map.m_map_window->win);
-      player.draw(map.m_map_window->win);
+      for(decltype(actors.size()) i = 0; i < actors.size(); ++i)
+      {
+         if(!actors[i])
+         {
+            actors[i] = Actor::create(type, x, y);
+            return i;
+         }
+      }
+
+      return -1;
+   }
+
+   void drawActors() const
+   {
+      player.draw(Graphics::Gui::getWindow(map.m_window_index)->getWindow());
+      for(auto& actor : actors)
+      {
+         if(actor)
+         {
+            actor->draw(Graphics::Gui::getWindow(map.m_window_index)->getWindow());
+         }
+      }
    }
 
    void drawMap() const
@@ -31,20 +55,21 @@ struct Game
       map.draw();
    }
 
-   bool checkInteraction(int x, int y)
+   bool checkInteraction(Actor& actor, int x, int y)
    {
-      if(npc.x == x && npc.y == y)
+      for(auto& other : actors)
       {
-         Graphics::Gui::instance->message("Interaction!\n");
-         player.interact(npc);
-         return true;
+         if(other)
+         {
+            if(other->x == x && other->y == y)
+            {
+               Graphics::Gui::instance->message("Interaction!\n");
+               actor.interact(*other);
+               return true;
+            }
+         }
       }
       return false;
-   }
-
-   void refresh()
-   {
-      map.refresh();
    }
 };
 
@@ -55,14 +80,16 @@ inline void initialize()
    instance = std::unique_ptr<Game>{ new Game{} };
    
    instance->map = Map::load("binary.map");
-   instance->npc.set_xy(2, 2);
+   instance->actors.resize(10);
+   instance->createActor(Actor::Type::Npc,      2, 2);
+   instance->createActor(Actor::Type::Pushable, 4, 4);
 
    Engine::Keyboard& kb = Engine::Keyboard::instance();
    auto& player   = instance->player;
    auto& game_map = instance->map;
 
    auto move_up = [&player, &game_map](const char&) {
-      if (!player.interacting && !instance->checkInteraction(player.x, player.y - 1))
+      if (!player.interacting && !instance->checkInteraction(player, player.x, player.y - 1))
       {
          if (game_map.isMoveOkay(player, player.y - 1, player.x))
          {
@@ -72,7 +99,7 @@ inline void initialize()
    };
 
    auto move_down = [&player, &game_map](const char&) {
-      if (!player.interacting && !instance->checkInteraction(player.x, player.y + 1))
+      if (!player.interacting && !instance->checkInteraction(player, player.x, player.y + 1))
       {
 	      if (game_map.isMoveOkay(player, player.y + 1, player.x)) 
          {
@@ -82,7 +109,7 @@ inline void initialize()
    };
 
    auto move_left = [&player, &game_map](const char&) {
-      if (!player.interacting && !instance->checkInteraction(player.x - 1, player.y))
+      if (!player.interacting && !instance->checkInteraction(player, player.x - 1, player.y))
       {
 	      if (game_map.isMoveOkay(player, player.y, player.x - 1)) 
          {
@@ -92,7 +119,7 @@ inline void initialize()
    };
 
    auto move_right = [&player, &game_map](const char&) {
-      if (!player.interacting && !instance->checkInteraction(player.x + 1, player.y))
+      if (!player.interacting && !instance->checkInteraction(player, player.x + 1, player.y))
       {
 	      if (game_map.isMoveOkay(player, player.y, player.x + 1)) 
          {
@@ -133,6 +160,16 @@ inline void initialize()
       }
    });
    instance->cheats.enable();
+}
+
+inline bool checkMove(const Actor& actor, int x, int y)
+{
+   return instance->map.isMoveOkay(actor, y, x);
+}
+
+inline void performMove(Actor& actor, int x, int y)
+{
+   actor.set_xy(x, y);
 }
 
 } /* namespace Game */

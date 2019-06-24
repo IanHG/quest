@@ -42,8 +42,7 @@ int main(int argc, char* argv[])
    Engine::gameLoop([](){ 
       auto& game = *Game::instance;
       game.drawMap();
-      game.drawPlayer();
-      game.refresh();
+      game.drawActors();
 
       //game.checkInteraction();
 

@@ -2,6 +2,8 @@
 #ifndef QUEST_GAME_ACTOR_HPP_INCLUDED
 #define QUEST_GAME_ACTOR_HPP_INCLUDED
 
+#include <memory>
+
 #include "../graphics/TypeDefs.hpp"
 #include "../graphics/Sprite.hpp"
 
@@ -12,8 +14,10 @@ namespace Game
 
 struct Actor
 {
+   using SmartPtr = std::unique_ptr<Actor>;
+
    //
-   enum : int { error, player, npc };
+   enum class Type : int { Error, Player, Npc, Pushable };
 
    // Sprite
    //Graphics::SpriteProxy sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::empty);
@@ -30,7 +34,7 @@ struct Actor
    bool godmode  = false;
    
    // 
-   int type = error;
+   Type type = Type::Error;
 
    // virtual destructor
    virtual ~Actor() = 0;
@@ -51,23 +55,45 @@ struct Actor
    virtual void interact(Actor& other)
    {
    }
+
+   static SmartPtr create(Type type, int x, int y);
    
-   // 
-   virtual void onMoveOver(Actor& other)
-   {
-   }
+   //// 
+   //virtual void onMoveOn(Actor& other)
+   //{
+   //}
+   //
+   //// 
+   //virtual void onMoveOff(Actor& other)
+   //{
+   //}
 };
 
 inline Actor::~Actor() 
 { 
 }
 
+struct Pushable
+   :  public Actor
+{
+   Pushable()
+   {
+      Actor    ::type   = Actor::Type::Pushable;
+      Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite('w');
+   }
+
+   virtual ~Pushable()
+   {
+   }
+
+   virtual void interact(Actor& other);
+};
+
 struct Character
    :  public Actor
 {
    // Virtual destructor
    virtual ~Character() = 0;
-
 
    // Stats
    int hp;
@@ -81,11 +107,11 @@ struct Npc
    :  public Character
 {
    bool           hostile   = false;
-   EncounterProxy encounter; 
+   EncounterProxy encounter;
 
    Npc()
    {
-      Actor    ::type = Actor::npc;
+      Actor    ::type = Actor::Type::Npc;
       Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite('O');
       Character::hp   = 10;
       encounter       = EncounterProxy{ std::unique_ptr<Encounter>{ new Conversation{} } };
@@ -104,14 +130,45 @@ struct Player
 
    Player()
    {
-      Actor    ::type   = Actor::player;
-      //Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::player);
+      Actor    ::type   = Actor::Type::Player;
+      //Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::PLAYER);
       Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite('P');
       Character::hp     = 10;
    }
    
    void interact(Actor& other);
 };
+
+/**
+ * Create actor
+ **/
+inline Actor::SmartPtr Actor::create(Actor::Type type, int x, int y)
+{
+   Actor::SmartPtr actor;
+
+   switch(type)
+   {
+      case Actor::Type::Player:
+         actor = Actor::SmartPtr{ new Player() };
+         break;
+      case Actor::Type::Npc:
+         actor = Actor::SmartPtr{ new Npc() };
+         break;
+      case Actor::Type::Pushable:
+         actor = Actor::SmartPtr{ new Pushable() };
+         break;
+      case Actor::Type::Error:
+      default:
+         actor = Actor::SmartPtr{ nullptr };
+   }
+   
+   if(actor)
+   {
+      actor->set_xy(x, y);
+   }
+
+   return actor;
+}
 
 
 //struct Item

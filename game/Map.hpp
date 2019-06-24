@@ -5,7 +5,7 @@
 #include <functional>
 
 #include "../graphics/Sprite.hpp"
-#include "../graphics/Window.hpp"
+#include "../graphics/Gui.hpp"
 #include "../game/Actor.hpp"
 
 namespace Game
@@ -25,8 +25,9 @@ struct Environment
    bool toxic    = false;
    
    // On move over
-   using function_type = std::function<void(Actor&)>;
-   function_type move_over = [](Actor&){};
+   using function_type    = std::function<void(Actor&)>;
+   function_type move_on  = [](Actor&){};
+   function_type move_off = [](Actor&){};
    
    // Draw environment sprite
    void draw(WINDOW* win, int x, int y) const
@@ -61,7 +62,7 @@ struct Environment
 struct Map
 {
    using border_window_ptr = std::unique_ptr<Graphics::BorderWindow>;
-   using field_ptr_type    = std::unique_ptr<Environment[]>;
+   using EnvironmentArray  = std::unique_ptr<Environment[]>;
 
    // Size of map
    int x_size = 0;
@@ -72,12 +73,14 @@ struct Map
    int y_offset = 0;
     
    // Map
-   std::unique_ptr<Environment[]> m_map        = field_ptr_type{nullptr};
-   border_window_ptr              m_map_window = border_window_ptr{nullptr};
+   EnvironmentArray m_map          = EnvironmentArray{nullptr};
+   //border_window_ptr m_map_window = border_window_ptr{nullptr};
+   Graphics::Gui::WindowIndex m_window_index = Graphics::Gui::WindowIndex{0};
 
    Map()  = default;
    ~Map() = default;
-
+   
+   // Move ctor and move assignment
    Map(Map&&)            = default;
    Map& operator=(Map&&) = default;
    
@@ -88,9 +91,6 @@ struct Map
    //void draw(WINDOW* win) const;
    void draw() const;
 
-   // Refresh map framebuffer
-   void refresh();
-   
    // Load map from file
    static Map load(const std::string& map_name); //, const std::string& map_path = );
 };
