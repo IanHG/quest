@@ -17,13 +17,12 @@ struct Game
 {
    using ActorVec = std::vector<Actor::SmartPtr>;
 
+   Player   player;
    ActorVec actors;
-   Player player;
-   //Npc    npc;
-   //Pushable push;
-   Map    map;
-   Cheats cheats;
-
+   Map      map;
+   Cheats   cheats;
+   
+   //! Create actor
    int createActor(Actor::Type type, int x, int y)
    {
       for(decltype(actors.size()) i = 0; i < actors.size(); ++i)
@@ -38,6 +37,7 @@ struct Game
       return -1;
    }
 
+   //! Draw actors
    void drawActors() const
    {
       player.draw(Graphics::Gui::getWindow(map.m_window_index)->getWindow());
@@ -63,7 +63,7 @@ struct Game
          {
             if(other->x == x && other->y == y)
             {
-               Graphics::Gui::instance->message("Interaction!\n");
+               //Graphics::Gui::instance->message("Interaction!\n");
                actor.interact(*other);
                return true;
             }
@@ -74,6 +74,18 @@ struct Game
 };
 
 inline std::unique_ptr<Game> instance = std::unique_ptr<Game>{ nullptr };
+
+inline bool checkMove(const Actor& actor, int x, int y)
+{
+   return instance->map.isMoveOkay(actor, y, x);
+}
+
+inline void performMove(Actor& actor, int x, int y)
+{
+   instance->map.moveOff(actor);
+   actor.set_xy(x, y);
+   instance->map.moveOn(actor);
+}
 
 inline void initialize()
 {
@@ -93,7 +105,7 @@ inline void initialize()
       {
          if (game_map.isMoveOkay(player, player.y - 1, player.x))
          {
-            player.y = player.y - 1;
+		      performMove(player, player.x, player.y - 1);
          }
       }
    };
@@ -103,7 +115,7 @@ inline void initialize()
       {
 	      if (game_map.isMoveOkay(player, player.y + 1, player.x)) 
          {
-		      player.y = player.y + 1;
+		      performMove(player, player.x, player.y + 1);
 	      }
       }
    };
@@ -113,7 +125,7 @@ inline void initialize()
       {
 	      if (game_map.isMoveOkay(player, player.y, player.x - 1)) 
          {
-	         player.x = player.x - 1;
+		      performMove(player, player.x - 1, player.y);
 	      }
       }
    };
@@ -123,7 +135,7 @@ inline void initialize()
       {
 	      if (game_map.isMoveOkay(player, player.y, player.x + 1)) 
          {
-		      player.x = player.x + 1;
+		      performMove(player, player.x + 1, player.y);
 	      }
       }
    };
@@ -162,15 +174,6 @@ inline void initialize()
    instance->cheats.enable();
 }
 
-inline bool checkMove(const Actor& actor, int x, int y)
-{
-   return instance->map.isMoveOkay(actor, y, x);
-}
-
-inline void performMove(Actor& actor, int x, int y)
-{
-   actor.set_xy(x, y);
-}
 
 } /* namespace Game */
 

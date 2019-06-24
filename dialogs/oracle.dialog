@@ -17,8 +17,22 @@ The Oracle!
 {
 Start over...
 }
-(1.1) -1
+(1.1) 2
+{
+Do you have any advice?
+}
+(1.2) -1
 {
 Lol n00b.
+}
+]
+[
+[2]
+{
+Yes! Rocks can be pushed! Try pushing this one... But, a word of advice: Don't push it into a corner, you cannot pull it out...
+}
+(2.0) -1
+{
+Ok, thanks for that. See ya!
 }
 ]

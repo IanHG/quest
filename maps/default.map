@@ -22,10 +22,21 @@ WWW              MMMMMMMM                     MMMM
                                      FFFFF
                                     FFFFF
                                      FFFFF
-               O                        FFFF
+                                        FFFF
                   FFFFFF         FFF
-   G                FFFFFFF       FFFF FF
+                    FFFFFFF       FFFF FF
          FFFF        FFFFFFFFF      FFFFF FF
        FFFF         FFFFFFFF       FFFFF F FF
       FFFFFF         FFFFFFFFF         FFFFFFF
        FFFFFFF   FFFFFFFFFFFFFFF  FFFFFFFFFFFFF
+active
+   pressure_plate P 1 1 D 6 6
+items
+   G 1 1
+actors
+   O 5 7
+exits
+   N
+   S
+   E
+   W binary

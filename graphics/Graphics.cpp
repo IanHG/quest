@@ -35,6 +35,7 @@ void initialize()
       init_pair(BINARY_ZERO_COLOR,   COLOR_BLACK, COLOR_BLACK);
       init_pair(BINARY_ONE_COLOR ,   COLOR_BLACK, COLOR_RED);
       init_pair(TORCH_COLOR ,   COLOR_YELLOW, COLOR_BLACK);
+      init_pair(WALL_COLOR ,   COLOR_WHITE, COLOR_RED);
    }
    
    clear();

@@ -102,6 +102,9 @@ struct SpriteContainer
       // Tree/forest
       m_code      .emplace_back('*');
       m_container .emplace_back(Sprite{TORCH, TORCH_COLOR});
+      // Tree/forest
+      m_code      .emplace_back('#');
+      m_container .emplace_back(Sprite{WALL, WALL_COLOR});
 
       // 0
       m_code      .emplace_back('0');

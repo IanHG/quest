@@ -18,7 +18,11 @@ void Pushable::interact(Actor& other)
 
    if(checkMove(*this, x_new, y_new))
    {
+      int x_old = this->x;
+      int y_old = this->y;
+
       performMove(*this, x_new, y_new);
+      performMove(other, x_old, y_old);
    }
 }
 

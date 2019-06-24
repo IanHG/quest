@@ -25,14 +25,24 @@ struct Environment
    bool toxic    = false;
    
    // On move over
-   using function_type    = std::function<void(Actor&)>;
-   function_type move_on  = [](Actor&){};
-   function_type move_off = [](Actor&){};
+   using function_type    = std::function<void(Environment&, Actor&)>;
+   function_type move_on  = [](Environment& env, Actor& actor) {  };
+   function_type move_off = [](Environment& env, Actor& actor) {  };
    
    // Draw environment sprite
    void draw(WINDOW* win, int x, int y) const
    {
       sprite->draw(win, x, y);
+   }
+
+   void onMoveOn(Actor& actor)
+   {
+      this->move_on(*this, actor);
+   }
+   
+   void onMoveOff(Actor& actor)
+   {
+      this->move_off(*this, actor);
    }
 
    // Create field
@@ -44,6 +54,7 @@ struct Environment
          case 'W':
          case 'F':
          case '*':
+         case '#':
             return Environment{Graphics::SpriteContainer::instance->getSprite(c), false};
          case ' ':
          case 'w':
@@ -63,6 +74,7 @@ struct Map
 {
    using border_window_ptr = std::unique_ptr<Graphics::BorderWindow>;
    using EnvironmentArray  = std::unique_ptr<Environment[]>;
+   using WindowIndex       = Graphics::Gui::WindowIndex;
 
    // Size of map
    int x_size = 0;
@@ -74,8 +86,7 @@ struct Map
     
    // Map
    EnvironmentArray m_map          = EnvironmentArray{nullptr};
-   //border_window_ptr m_map_window = border_window_ptr{nullptr};
-   Graphics::Gui::WindowIndex m_window_index = Graphics::Gui::WindowIndex{0};
+   WindowIndex      m_window_index = Graphics::Gui::WindowIndex{0};
 
    Map()  = default;
    ~Map() = default;
@@ -87,8 +98,17 @@ struct Map
    // Check move
    bool isMoveOkay(const Actor& actor, int y, int x) const;
 
+   void moveOn(Actor& actor)
+   {
+      m_map[actor.y + y_size * actor.x].onMoveOn(actor);
+   }
+   
+   void moveOff(Actor& actor)
+   {
+      m_map[actor.y + y_size * actor.x].onMoveOff(actor);
+   }
+
    // Draw map
-   //void draw(WINDOW* win) const;
    void draw() const;
 
    // Load map from file
