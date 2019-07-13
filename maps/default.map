@@ -29,14 +29,6 @@ WWW              MMMMMMMM                     MMMM
        FFFF         FFFFFFFF       FFFFF F FF
       FFFFFF         FFFFFFFFF         FFFFFFF
        FFFFFFF   FFFFFFFFFFFFFFF  FFFFFFFFFFFFF
-active
-   pressure_plate P 1 1 D 6 6
-items
-   G 1 1
-actors
-   O 5 7
-exits
-   N
-   S
-   E
-   W binary
+active 
+1
+pressure_plate P 5 5 D 6 6

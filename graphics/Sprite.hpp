@@ -3,6 +3,7 @@
 #define QUEST_GRAPHICS_SPRITE_HPP_INCLUDED
 
 #include "TypeDefs.hpp"
+#include "Graphics.hpp"
 
 #include <cassert>
 #include <vector>
@@ -24,13 +25,6 @@ struct Sprite
 
    char  symbol = EMPTY;
    int   color  = DEFAULT_COLOR;
-
-   void draw(WINDOW* win, int x, int y) const
-   {
-      wattron (win, COLOR_PAIR(color));
-	   mvwaddch(win, y, x, this->symbol);
-      wattroff(win, COLOR_PAIR(color));
-   }
 };
 
 /**
@@ -80,42 +74,48 @@ struct SpriteContainer
    {
       // Empty sprite
       m_code      .emplace_back(' ');
-      m_container .emplace_back(Sprite{EMPTY, DEFAULT_COLOR});
+      m_container .emplace_back(Sprite{EMPTY, color_pairs[COLOR::BLACK][COLOR::BLACK]});
       // Player sprite
       m_code      .emplace_back('P');
-      m_container .emplace_back(Sprite{PLAYER, PLAYER_COLOR});
+      m_container .emplace_back(Sprite{PLAYER, color_pairs[COLOR_CYAN][COLOR_BLACK]});
       // Grail
       m_code      .emplace_back('G');
-      m_container .emplace_back(Sprite{GRAIL, GRAIL_COLOR});
+      m_container .emplace_back(Sprite{GRAIL, color_pairs[COLOR::YELLOW][COLOR::BLACK]});
       // Mountain
       m_code      .emplace_back('M');
-      m_container .emplace_back(Sprite{MOUNTAIN, ENEMY_COLOR});
+      m_container .emplace_back(Sprite{MOUNTAIN, color_pairs[COLOR::WHITE][COLOR::RED]});
       // Water
       m_code      .emplace_back('W');
-      m_container .emplace_back(Sprite{WATER, WATER_COLOR});
+      m_container .emplace_back(Sprite{WATER, color_pairs[COLOR::CYAN][COLOR::BLUE]});
       // Water
       m_code      .emplace_back('w');
-      m_container .emplace_back(Sprite{WATER, SMALL_WATER_COLOR});
+      m_container .emplace_back(Sprite{WATER, color_pairs[COLOR::BLUE][COLOR::BLACK]});
       // Tree/forest
       m_code      .emplace_back('F');
-      m_container .emplace_back(Sprite{TREE, TREE_COLOR});
+      m_container .emplace_back(Sprite{TREE, color_pairs[COLOR::RED][COLOR::GREEN]});
       // Tree/forest
       m_code      .emplace_back('*');
-      m_container .emplace_back(Sprite{TORCH, TORCH_COLOR});
+      m_container .emplace_back(Sprite{TORCH, color_pairs[COLOR::YELLOW][COLOR::BLACK]});
       // Tree/forest
       m_code      .emplace_back('#');
-      m_container .emplace_back(Sprite{WALL, WALL_COLOR});
+      m_container .emplace_back(Sprite{WALL, color_pairs[COLOR::WHITE][COLOR::RED]});
+      // Tree/forest
+      m_code      .emplace_back('P');
+      m_container .emplace_back(Sprite{WALL, color_pairs[COLOR::WHITE][COLOR::BLUE]});
+      // Tree/forest
+      m_code      .emplace_back('D');
+      m_container .emplace_back(Sprite{WALL, color_pairs[COLOR::GREEN][COLOR::BLACK]});
 
       // 0
       m_code      .emplace_back('0');
-      m_container .emplace_back(Sprite{BINARY_ZERO, BINARY_ONE_COLOR});
+      m_container .emplace_back(Sprite{BINARY_ZERO, color_pairs[COLOR::BLACK][COLOR::RED]});
       // 1
       m_code      .emplace_back('1');
-      m_container .emplace_back(Sprite{BINARY_ONE, BINARY_ZERO_COLOR});
+      m_container .emplace_back(Sprite{BINARY_ONE, color_pairs[COLOR::BLACK][COLOR::BLACK]});
 
       // Orc
       m_code      .emplace_back('O');
-      m_container .emplace_back(Sprite{ORC, ENEMY_COLOR});
+      m_container .emplace_back(Sprite{ORC, color_pairs[COLOR::RED][COLOR::BLACK]});
    }
 
    /**

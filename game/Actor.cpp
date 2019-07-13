@@ -3,9 +3,16 @@
 #include <iostream>
 
 #include "Game.hpp"
+#include "Map.hpp"
+#include "Fight.hpp"
 
 namespace Game
 {
+
+void Actor::draw(Map& map) const
+{
+   map.drawActor(*this);
+}
 
 void Pushable::interact(Actor& other)
 {
@@ -26,6 +33,11 @@ void Pushable::interact(Actor& other)
    }
 }
 
+void Item::interact(Actor& other)
+{
+
+}
+
 void Npc::interact(Actor& other)
 {
    if(other.type == Actor::Type::Player)
@@ -35,6 +47,8 @@ void Npc::interact(Actor& other)
       if(hostile)
       {
          // Attack
+         Fight fight;
+         fight.start(*player, *this);
       }
       else
       {
@@ -55,6 +69,8 @@ void Player::interact(Actor& other)
       if(npc->hostile)
       {
          // Attack
+         Fight fight;
+         fight.start(*this, *npc);
       }
       else
       {
@@ -68,6 +84,60 @@ void Player::interact(Actor& other)
    }
    
    this->interacting = false;
+}
+
+void Player::drawStats() const
+{
+   auto stats_window = Graphics::Gui::getWindow(Graphics::Gui::Window::STATS);
+   
+   if(stats_window)
+   {
+      WINDOW* win = stats_window->getWindow();
+      werase(win);
+      wprintw(win, "  \n");
+      wprintw(win, "  Strength    %i\n", this->strength);
+      wprintw(win, "  Dexterity   %i\n", this->dexterity);
+      wprintw(win, "  Wisdom      %i\n", this->intelligence);
+      wprintw(win, "  \n");
+      wprintw(win, "  HP          %i/%i\n", this->hp, this->hp_max);
+      wprintw(win, "  MP          %i/%i\n", this->mp, this->mp_max);
+      wprintw(win, "  \n");
+      wprintw(win, "  Level       %i\n", this->level);
+      wprintw(win, "  XP          %i/%i\n", this->xp, this->xp_for_next_level);
+   }
+}
+
+void Player::giveXp(int xp)
+{
+   // Increment xp
+   this->xp += xp;
+}
+
+void Player::checkLevelUp()
+{
+   // Check for level up
+   if(this->xp >= this->xp_for_next_level)
+   {
+      // Perform level up
+      this->strength += 1;
+
+      // Increment xp for next level
+      ++this->next_level;
+      this->xp_for_next_level += this->next_level;
+   }
+}
+
+void Player::checkStatus()
+{
+   if(this->hp <= 0)
+   {
+   }
+}
+
+void Player::update()
+{
+   this->checkStatus ();
+   this->checkLevelUp();
 }
 
 } /* namespace game */

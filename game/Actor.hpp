@@ -12,16 +12,21 @@
 namespace Game
 {
 
+struct Map;
+
 struct Actor
 {
    using SmartPtr = std::unique_ptr<Actor>;
 
    //
-   enum class Type : int { Error, Player, Npc, Pushable };
+   enum class Type : int { Error, Player, Npc, Pushable, Item };
 
    // Sprite
    //Graphics::SpriteProxy sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::empty);
    Graphics::SpriteProxy sprite = Graphics::SpriteContainer::instance->getSprite(' ');
+
+   // 
+   int index = -1;
 
    // Position
    int  x = 0;
@@ -40,10 +45,7 @@ struct Actor
    virtual ~Actor() = 0;
    
    // Draw actor
-   void draw(WINDOW* win) const
-   {
-      this->sprite->draw(win, x, y);
-   }
+   void draw(Map& map) const;
 
    void set_xy(int x, int y)
    {
@@ -89,6 +91,33 @@ struct Pushable
    virtual void interact(Actor& other);
 };
 
+struct Item
+   :  public Actor
+{
+   using ItemIndex = int;
+
+   ItemIndex index = -1;
+
+   Item()
+   {
+      Actor    ::type   = Actor::Type::Item;
+      Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite('+');
+   }
+
+   virtual void interact(Actor& other);
+
+   Actor::SmartPtr create(ItemIndex type, int x, int y)
+   {
+      auto item  = Actor::create(Actor::Type::Item, x, y);
+
+      Item* item_ptr = dynamic_cast<Item*>(item.get());
+
+      item_ptr->index = type;
+
+      return item;
+   }
+};
+
 struct Character
    :  public Actor
 {
@@ -96,7 +125,14 @@ struct Character
    virtual ~Character() = 0;
 
    // Stats
-   int hp;
+   int strength     = 1;
+   int dexterity    = 1;
+   int intelligence = 1;
+
+   int hp           = 1;
+   int hp_max       = 1;
+   int mp           = 1;
+   int mp_max       = 1;
 };
 
 inline Character::~Character()
@@ -106,7 +142,8 @@ inline Character::~Character()
 struct Npc
    :  public Character
 {
-   bool           hostile   = false;
+   //bool           hostile   = false;
+   bool           hostile   = true;
    EncounterProxy encounter;
 
    Npc()
@@ -126,6 +163,11 @@ struct Npc
 struct Player
    :  public Character
 {
+   int level = 1;
+   int xp    = 0;
+   int xp_for_next_level = 1;
+   int next_level        = 1;
+
    bool interacting = false;
 
    Player()
@@ -137,6 +179,15 @@ struct Player
    }
    
    void interact(Actor& other);
+
+   void drawStats() const;
+
+   void giveXp(int xp);
+
+   void checkLevelUp();
+   void checkStatus();
+
+   void update();
 };
 
 /**
@@ -156,6 +207,9 @@ inline Actor::SmartPtr Actor::create(Actor::Type type, int x, int y)
          break;
       case Actor::Type::Pushable:
          actor = Actor::SmartPtr{ new Pushable() };
+         break;
+      case Actor::Type::Item:
+         actor = Actor::SmartPtr{ new Item() };
          break;
       case Actor::Type::Error:
       default:

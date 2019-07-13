@@ -11,6 +11,8 @@
 namespace Game
 {
 
+struct Map;
+
 /**
  *
  **/
@@ -25,24 +27,18 @@ struct Environment
    bool toxic    = false;
    
    // On move over
-   using function_type    = std::function<void(Environment&, Actor&)>;
-   function_type move_on  = [](Environment& env, Actor& actor) {  };
-   function_type move_off = [](Environment& env, Actor& actor) {  };
+   using function_type    = std::function<void(Map&, Environment&, Actor&)>;
+   function_type move_on  = [](Map& map, Environment& env, Actor& actor) {  };
+   function_type move_off = [](Map& map, Environment& env, Actor& actor) {  };
    
-   // Draw environment sprite
-   void draw(WINDOW* win, int x, int y) const
+   void onMoveOn(Map& map, Actor& actor)
    {
-      sprite->draw(win, x, y);
-   }
-
-   void onMoveOn(Actor& actor)
-   {
-      this->move_on(*this, actor);
+      this->move_on(map, *this, actor);
    }
    
-   void onMoveOff(Actor& actor)
+   void onMoveOff(Map& map, Actor& actor)
    {
-      this->move_off(*this, actor);
+      this->move_off(map, *this, actor);
    }
 
    // Create field
@@ -100,16 +96,19 @@ struct Map
 
    void moveOn(Actor& actor)
    {
-      m_map[actor.y + y_size * actor.x].onMoveOn(actor);
+      m_map[actor.y + y_size * actor.x].onMoveOn(*this, actor);
    }
    
    void moveOff(Actor& actor)
    {
-      m_map[actor.y + y_size * actor.x].onMoveOff(actor);
+      m_map[actor.y + y_size * actor.x].onMoveOff(*this, actor);
    }
 
    // Draw map
    void draw() const;
+
+   // Draw actor
+   void drawActor(const Actor& actor) const;
 
    // Load map from file
    static Map load(const std::string& map_name); //, const std::string& map_path = );

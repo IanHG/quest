@@ -47,6 +47,8 @@ void Conversation::start(Player& player)
 
       return dialog.ended();
    });
+
+   player.giveXp(1);
    
    // De register events
    mer.deregisterEvents(Engine::Keyboard::instance());

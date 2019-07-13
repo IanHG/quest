@@ -9,6 +9,7 @@
 #include "Actor.hpp"
 #include "Map.hpp"
 #include "Cheats.hpp"
+#include "Roll.hpp"
 
 namespace Game
 {
@@ -21,6 +22,8 @@ struct Game
    ActorVec actors;
    Map      map;
    Cheats   cheats;
+
+   bool game_ended = false;
    
    //! Create actor
    int createActor(Actor::Type type, int x, int y)
@@ -30,6 +33,7 @@ struct Game
          if(!actors[i])
          {
             actors[i] = Actor::create(type, x, y);
+            actors[i]->index = i;
             return i;
          }
       }
@@ -37,17 +41,31 @@ struct Game
       return -1;
    }
 
-   //! Draw actors
-   void drawActors() const
+   //!
+   void removeActor(int actor_index)
    {
-      player.draw(Graphics::Gui::getWindow(map.m_window_index)->getWindow());
+      if(actor_index >= 0 && actor_index < int(actors.size()))
+      {
+         actors[actor_index] = Actor::SmartPtr{ nullptr };
+      }
+   }
+
+   //! Draw actors
+   void drawActors()
+   {
+      player.draw(map);
       for(auto& actor : actors)
       {
          if(actor)
          {
-            actor->draw(Graphics::Gui::getWindow(map.m_window_index)->getWindow());
+            actor->draw(map);
          }
       }
+   }
+
+   void drawStats() const
+   {
+      player.drawStats();
    }
 
    void drawMap() const
@@ -71,6 +89,16 @@ struct Game
       }
       return false;
    }
+
+   void gameOver()
+   {
+      this->game_ended = true;
+   }
+
+   bool ended() const
+   {
+      return this->game_ended;
+   }
 };
 
 inline std::unique_ptr<Game> instance = std::unique_ptr<Game>{ nullptr };
@@ -89,8 +117,13 @@ inline void performMove(Actor& actor, int x, int y)
 
 inline void initialize()
 {
+   seedRolls();
+
    instance = std::unique_ptr<Game>{ new Game{} };
+   instance->player.x = 10;
+   instance->player.y = 10;
    
+   //instance->map = Map::load("binary.map");
    instance->map = Map::load("binary.map");
    instance->actors.resize(10);
    instance->createActor(Actor::Type::Npc,      2, 2);

@@ -28,6 +28,7 @@ int main(int argc, char* argv[])
    // "⠐⠑⠒⠓⠔⠕⠖⠗⠘⠙⠚⠛⠜⠝⠞⠟\n"
    // "⠠⠡⠢⠣⠤⠥⠦⠧⠨⠩⠪⠫⠬⠭⠮⠯\n"
    // "⠰⠱⠲⠳⠴⠵⠶⠷⠸⠹⠺⠻⠼⠽⠾⠿\n";
+   //
    
    /******************************************
     * Initialize game components 
@@ -37,18 +38,25 @@ int main(int argc, char* argv[])
    Game    ::initialize();
    
    /******************************************
+    * Start screen
+    ******************************************/
+   
+   /******************************************
     * MAIN GAME LOOP
     ******************************************/
    Engine::gameLoop([](){ 
       auto& game = *Game::instance;
       game.drawMap();
       game.drawActors();
+      game.drawStats();
 
-      //game.checkInteraction();
-
-      return true; 
+      return !game.ended(); 
    });
-   
+
+   /******************************************
+    * End screen
+    ******************************************/
+
    /******************************************
     * Finalize game components 
     ******************************************/

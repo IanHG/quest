@@ -124,10 +124,6 @@ struct Gui
             win->refresh();
          }
       }
-      //main  ->refresh();
-      //lore  ->refresh();
-      //stats ->refresh();
-      //status->refresh();
    }
 
    /**
