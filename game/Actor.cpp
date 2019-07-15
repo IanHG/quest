@@ -140,4 +140,22 @@ void Player::update()
    this->checkLevelUp();
 }
 
+Actor::SmartPtr Actor::createActor(const std::string& type, int x, int y)
+{
+   Actor::SmartPtr actor = Actor::SmartPtr{nullptr};
+
+   if(type == "orc")
+   {
+      actor = Actor::create(Actor::Type::Npc, x, y);
+      actor->sprite = Graphics::getSprite(Graphics::Sprite::Orc);
+   }
+   else if(type == "rock")
+   {
+      actor = Actor::create(Actor::Type::Pushable, x, y);
+      actor->sprite = Graphics::getSprite(Graphics::Sprite::Rock);
+   }
+   
+   return actor;
+}
+
 } /* namespace game */

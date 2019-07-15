@@ -59,7 +59,7 @@ struct Actor
    }
 
    static SmartPtr create(Type type, int x, int y);
-   static SmartPtr createNpc(const std::string& type, int x, int y);
+   static SmartPtr createActor(const std::string& type, int x, int y);
    
    //// 
    //virtual void onMoveOn(Actor& other)
@@ -149,10 +149,9 @@ struct Npc
 
    Npc()
    {
-      Actor    ::type = Actor::Type::Npc;
-      Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite('O');
-      Character::hp   = 10;
-      encounter       = EncounterProxy{ std::unique_ptr<Encounter>{ new Conversation{} } };
+      Actor    ::type   = Actor::Type::Npc;
+      Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Error);
+      encounter         = EncounterProxy{ std::unique_ptr<Encounter>{ new Conversation{} } };
    }
 
    void interact(Actor& other);
@@ -175,7 +174,7 @@ struct Player
    {
       Actor    ::type   = Actor::Type::Player;
       //Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::PLAYER);
-      Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite('P');
+      Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Player);
       Character::hp     = 10;
    }
    
@@ -225,20 +224,26 @@ inline Actor::SmartPtr Actor::create(Actor::Type type, int x, int y)
    return actor;
 }
 
-/**
- *
- **/
-inline Actor::SmartPtr Actor::createNpc(const std::string& type, int x, int y)
-{
-   Actor::SmartPtr npc = Actor::create(Actor::Type::Npc, x, y);
-
-   if(type == "orc")
-   {
-      npc->sprite = Graphics::getSprite('O');
-   }
-   
-   return npc;
-}
+///**
+// *
+// **/
+//Actor::SmartPtr Actor::createActor(const std::string& type, int x, int y)
+//{
+//   Actor::SmartPtr actor = Actor::SmartPtr{nullptr};
+//
+//   if(type == "orc")
+//   {
+//      actor = Actor::create(Actor::Type::Npc, x, y);
+//      actor->sprite = Graphics::getSprite(Sprite::Orc);
+//   }
+//   else if(type == "rock")
+//   {
+//      actor = Actor::create(Actor::Type::Pushable, x, y);
+//      actor->sprite = Graphics::getSprite(Sprite::Rock);
+//   }
+//   
+//   return actor;
+//}
 
 //struct Item
 //   :  public Actor

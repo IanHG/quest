@@ -19,7 +19,7 @@ struct Map;
 struct Environment
 {
    // Sprite
-   Graphics::SpriteProxy sprite = Graphics::SpriteContainer::instance->getSprite(' ');
+   Graphics::SpriteProxy sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Empty);
    
    // Environment characteristics
    bool passable = true;
@@ -46,19 +46,32 @@ struct Environment
    {
       switch(c)
       {
+         case 'D':
+            return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Door), false};
          case 'M':
+            return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Mountain), false};
          case 'W':
+            return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Water), false};
          case 'F':
+            return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Tree), false};
          case '*':
+            return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Torch), false};
          case '#':
-            return Environment{Graphics::SpriteContainer::instance->getSprite(c), false};
+            return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Wall), false};
          case ' ':
+            return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Empty), true};
          case 'w':
+            return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::ShallowWater), true};
          case 'm':
+            return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::SmallMountain), true};
          case '0':
+            return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::BinaryZero), true};
          case '1':
+            return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::BinaryOne), true};
+         case 'P':
+            return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Plate), true};
          default:
-            return Environment{Graphics::SpriteContainer::instance->getSprite(c), true};
+            return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Error), true};
       }
    }
 };

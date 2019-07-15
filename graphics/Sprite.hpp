@@ -18,13 +18,28 @@ namespace Graphics
 struct Sprite
 {
    enum : int
-   {  empty  = 0
-   ,  player
-   ,  size
+   {  Empty  = 0
+   ,  Player
+   ,  Grail
+   ,  Mountain
+   ,  SmallMountain
+   ,  Water
+   ,  ShallowWater
+   ,  Tree
+   ,  Torch
+   ,  Wall
+   ,  BinaryZero
+   ,  BinaryOne
+   ,  Orc
+   ,  Rock
+   ,  Plate
+   ,  Door
+   ,  Error
+   ,  Size
    };
 
-   char  symbol = EMPTY;
-   int   color  = DEFAULT_COLOR;
+   char  symbol = 'E';
+   int   color  = 0;
 };
 
 /**
@@ -64,7 +79,7 @@ struct SpriteContainer
    using container_type = std::vector<Sprite>;
    using code_type      = std::vector<char>;
 
-   container_type m_container;
+   container_type m_container = container_type{Sprite::Size};
    code_type      m_code;
    
    /**
@@ -72,63 +87,33 @@ struct SpriteContainer
     **/
    SpriteContainer()
    {
-      // Empty sprite
-      m_code      .emplace_back(' ');
-      m_container .emplace_back(Sprite{EMPTY, color_pairs[COLOR::BLACK][COLOR::BLACK]});
-      // Player sprite
-      m_code      .emplace_back('P');
-      m_container .emplace_back(Sprite{PLAYER, color_pairs[COLOR_CYAN][COLOR_BLACK]});
-      // Grail
-      m_code      .emplace_back('G');
-      m_container .emplace_back(Sprite{GRAIL, color_pairs[COLOR::YELLOW][COLOR::BLACK]});
-      // Mountain
-      m_code      .emplace_back('M');
-      m_container .emplace_back(Sprite{MOUNTAIN, color_pairs[COLOR::WHITE][COLOR::RED]});
-      // Water
-      m_code      .emplace_back('W');
-      m_container .emplace_back(Sprite{WATER, color_pairs[COLOR::CYAN][COLOR::BLUE]});
-      // Water
-      m_code      .emplace_back('w');
-      m_container .emplace_back(Sprite{WATER, color_pairs[COLOR::BLUE][COLOR::BLACK]});
-      // Tree/forest
-      m_code      .emplace_back('F');
-      m_container .emplace_back(Sprite{TREE, color_pairs[COLOR::RED][COLOR::GREEN]});
-      // Tree/forest
-      m_code      .emplace_back('*');
-      m_container .emplace_back(Sprite{TORCH, color_pairs[COLOR::YELLOW][COLOR::BLACK]});
-      // Tree/forest
-      m_code      .emplace_back('#');
-      m_container .emplace_back(Sprite{WALL, color_pairs[COLOR::WHITE][COLOR::RED]});
-      // Tree/forest
-      m_code      .emplace_back('P');
-      m_container .emplace_back(Sprite{WALL, color_pairs[COLOR::WHITE][COLOR::BLUE]});
-      // Tree/forest
-      m_code      .emplace_back('D');
-      m_container .emplace_back(Sprite{WALL, color_pairs[COLOR::GREEN][COLOR::BLACK]});
-
-      // 0
-      m_code      .emplace_back('0');
-      m_container .emplace_back(Sprite{BINARY_ZERO, color_pairs[COLOR::BLACK][COLOR::DARKER_RED]});
-      // 1
-      m_code      .emplace_back('1');
-      m_container .emplace_back(Sprite{BINARY_ONE, color_pairs[COLOR::BLACK][COLOR::BLACK]});
-
-      // Orc
-      m_code      .emplace_back('O');
-      m_container .emplace_back(Sprite{ORC, color_pairs[COLOR::RED][COLOR::BLACK]});
+      m_container[Sprite::Empty]         = Sprite{' ', color_pairs[COLOR::BLACK][COLOR::BLACK]};
+      m_container[Sprite::Player]        = Sprite{'@', color_pairs[COLOR_CYAN][COLOR_BLACK]};
+      m_container[Sprite::Grail]         = Sprite{'Y', color_pairs[COLOR::YELLOW][COLOR::BLACK]};
+      m_container[Sprite::Mountain]      = Sprite{'^', color_pairs[COLOR::WHITE][COLOR::RED]};
+      m_container[Sprite::SmallMountain] = Sprite{'^', color_pairs[COLOR::RED][COLOR::BLACK]};
+      m_container[Sprite::Water]         = Sprite{'~', color_pairs[COLOR::CYAN][COLOR::BLUE]};
+      m_container[Sprite::ShallowWater]  = Sprite{'~', color_pairs[COLOR::BLUE][COLOR::BLACK]};
+      m_container[Sprite::Tree]          = Sprite{'*', color_pairs[COLOR::RED][COLOR::GREEN]};
+      m_container[Sprite::Torch]         = Sprite{'*', color_pairs[COLOR::YELLOW][COLOR::BLACK]};
+      m_container[Sprite::Wall]          = Sprite{'#', color_pairs[COLOR::WHITE][COLOR::RED]};
+      m_container[Sprite::BinaryZero]    = Sprite{' ', color_pairs[COLOR::BLACK][COLOR::DARKER_RED]};
+      m_container[Sprite::BinaryOne]     = Sprite{' ', color_pairs[COLOR::BLACK][COLOR::BLACK]};
+      m_container[Sprite::Orc]           = Sprite{'O', color_pairs[COLOR::RED][COLOR::BLACK]};
+      m_container[Sprite::Rock]          = Sprite{'0', color_pairs[COLOR::CYAN][COLOR::BLACK]};
+      m_container[Sprite::Plate]         = Sprite{' ', color_pairs[COLOR::WHITE][COLOR::RED]};
+      m_container[Sprite::Door]          = Sprite{'D', color_pairs[COLOR::WHITE][COLOR::RED]};
+      m_container[Sprite::Error]         = Sprite{'E', color_pairs[COLOR::BLUE][COLOR::RED]};
    }
 
    /**
     * Get sprite 
     **/
-   SpriteProxy getSprite(char c) const
+   SpriteProxy getSprite(int sprite_index) const
    {
-      for(std::size_t i = 0; i < m_code.size(); ++i)
+      if(sprite_index < int(m_container.size()) && sprite_index >= 0)
       {
-         if(m_code[i] == c)
-         {
-            return SpriteProxy{ &(m_container[i]) };
-         }
+         return SpriteProxy{ &(m_container[sprite_index]) };
       }
       return SpriteProxy{ &(m_container[0]) };
    }

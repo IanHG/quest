@@ -1,11 +1,11 @@
 30 50
 WWWWWWWWWW                                   MMMMM
-WWWWWW                                         MMM
-WWWWW              MMMM                         MM
+WWWWWW                                        mMMM
+WWWWW              MMMM                      mmmMM
 WWW              MMMMMMMM                     MMMM
-                MMMMMMFFFFFF     FFF            MM
-                  MMM FF   FFF FFFFFF            M
-                     FFFFFFFFFFFF  FFF
+                MMMMMMFFFFFF     FFF           mMM
+                  MMM FF   FFF FFFFFF           mM
+                     FFFFFFFFFFFF  FFF           m
                         FFFFFFFF    F
       MMM          WWW  
      MMMMMM      WWwWW
@@ -17,7 +17,7 @@ WWW              MMMMMMMM                     MMMM
     WWW        FFF MMwMMM  
    WWWWW      FF FFF MMMMMM
     WWWW       FFFF   MMMM
-      w                              FFF
+      w                mm            FFF
                                     FFF
                                      FFFFF
                                     FFFFF
@@ -33,6 +33,7 @@ active
 1
 pressure_plate P 5 5 D 6 6
 actors
-2
+3
 orc 3 3
 orc 4 4
+rock 7 6

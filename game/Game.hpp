@@ -50,7 +50,7 @@ struct Game
          if(!actors[i])
          {
             Graphics::Gui::instance->message(" NPC CREATED ");
-            actors[i] = Actor::createNpc(type, x, y);
+            actors[i] = Actor::createActor(type, x, y);
             actors[i]->index = i;
             return i;
          }
@@ -152,11 +152,9 @@ inline void initialize()
    instance->player.x = 10;
    instance->player.y = 10;
    
-   //instance->map = Map::load("binary.map");
    instance->actors.resize(10);
+   
    instance->map = Map::load("default.map");
-   instance->createActor(Actor::Type::Npc,      2, 2);
-   instance->createActor(Actor::Type::Pushable, 4, 4);
 
    Engine::Keyboard& kb = Engine::Keyboard::instance();
    auto& player   = instance->player;

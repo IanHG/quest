@@ -92,10 +92,12 @@ Map Map::load(const std::string& map_name)
                map.m_map[y_plate + max_line * x_plate].move_on = [x_door, y_door, max_line](Map& map, Environment& env, Actor& actor) 
                   {
                      map.m_map[y_door + max_line * x_door].passable = true;
+                     map.m_map[y_door + max_line * x_door].sprite   = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Plate);
                   };
                map.m_map[y_plate + max_line * x_plate].move_off = [x_door, y_door, max_line](Map& map, Environment& env, Actor& actor) 
                   { 
                      map.m_map[y_door + max_line * x_door].passable = false;
+                     map.m_map[y_door + max_line * x_door].sprite   = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Door);
                   };
             }
          }
@@ -115,13 +117,6 @@ Map Map::load(const std::string& map_name)
             int         x_actor    = Util::fromString<int>(line_split[1]);
             int         y_actor    = Util::fromString<int>(line_split[2]);
             
-            Graphics::Gui::instance->message(actor_type);
-            Graphics::Gui::instance->message(" ");
-            Graphics::Gui::instance->message(std::to_string(x_actor));
-            Graphics::Gui::instance->message(" ");
-            Graphics::Gui::instance->message(std::to_string(y_actor));
-            Graphics::Gui::instance->message("\n");
-
             //
             int actor_index = instance->createNpc(actor_type, x_actor, y_actor);
 

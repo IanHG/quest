@@ -40,36 +40,53 @@ void Fight::draw() const
       {
          wprintw(win, " \n");
          wprintw(win, this->last_enemy_action.c_str());
+         wprintw(win, " \n");
+      }
+
+      if(this->fight_ended)
+      {
+         if(this->player_won)
+         {
+            wprintw(win, " \n");
+            wprintw(win, " You won the fight!\n");
+            wprintw(win, " \n");
+         }
+         else
+         {
+            wprintw(win, " \n");
+            wprintw(win, " You lost the fight! Game over!\n");
+            wprintw(win, " \n");
+         }
       }
    }
 }
 
-/**
- *
- **/
-void Fight::drawStatus() const
-{
-   auto window = Graphics::Gui::getWindow(this->window_index);
-
-   if(window)
-   {
-      auto win = window->getWindow();
-
-      werase(win);
-      if(this->player_won)
-      {
-         wprintw(win, " \n");
-         wprintw(win, " You won the fight!\n");
-         wprintw(win, " \n");
-      }
-      else
-      {
-         wprintw(win, " \n");
-         wprintw(win, " You lost the fight! Game over!\n");
-         wprintw(win, " \n");
-      }
-   }
-}
+///**
+// *
+// **/
+//void Fight::drawStatus() const
+//{
+//   auto window = Graphics::Gui::getWindow(this->window_index);
+//
+//   if(window)
+//   {
+//      auto win = window->getWindow();
+//
+//      werase(win);
+//      if(this->player_won)
+//      {
+//         wprintw(win, " \n");
+//         wprintw(win, " You won the fight!\n");
+//         wprintw(win, " \n");
+//      }
+//      else
+//      {
+//         wprintw(win, " \n");
+//         wprintw(win, " You lost the fight! Game over!\n");
+//         wprintw(win, " \n");
+//      }
+//   }
+//}
 
 /**
  *
@@ -241,7 +258,7 @@ void Fight::start(Player& player, Character& other)
    fight_status_mer.registerEvents(Engine::Keyboard::instance());
 
    Engine::gameLoop([this](){
-      this->drawStatus();
+      this->draw();
 
       return !(this->status_end);
    });
