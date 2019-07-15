@@ -16,6 +16,9 @@ enum COLOR : int
    ,  MAGENTA
    ,  CYAN
    ,  WHITE
+   ,  DARK_RED
+   ,  DARKER_RED
+   ,  LIGHT_RED
    ,  SIZE
    };
 

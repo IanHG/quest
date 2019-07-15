@@ -28,6 +28,7 @@ struct Game
    //! Create actor
    int createActor(Actor::Type type, int x, int y)
    {
+      Graphics::Gui::instance->message(" Creating actor ");
       for(decltype(actors.size()) i = 0; i < actors.size(); ++i)
       {
          if(!actors[i])
@@ -39,6 +40,34 @@ struct Game
       }
 
       return -1;
+   }
+
+   int createNpc(const std::string& type, int x, int y)
+   {
+      Graphics::Gui::instance->message(" Creating NPC ");
+      for(decltype(actors.size()) i = 0; i < actors.size(); ++i)
+      {
+         if(!actors[i])
+         {
+            Graphics::Gui::instance->message(" NPC CREATED ");
+            actors[i] = Actor::createNpc(type, x, y);
+            actors[i]->index = i;
+            return i;
+         }
+      }
+      Graphics::Gui::instance->message(" ALL FULL ");
+
+      return -1;
+   }
+   
+   //! Get actor
+   Actor* getActor(int actor_index)
+   {
+      if(actor_index >= 0 && actor_index < int(actors.size()))
+      {
+         return actors[actor_index].get();
+      }
+      return nullptr;
    }
 
    //!
@@ -124,8 +153,8 @@ inline void initialize()
    instance->player.y = 10;
    
    //instance->map = Map::load("binary.map");
-   instance->map = Map::load("binary.map");
    instance->actors.resize(10);
+   instance->map = Map::load("default.map");
    instance->createActor(Actor::Type::Npc,      2, 2);
    instance->createActor(Actor::Type::Pushable, 4, 4);
 

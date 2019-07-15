@@ -59,6 +59,7 @@ struct Actor
    }
 
    static SmartPtr create(Type type, int x, int y);
+   static SmartPtr createNpc(const std::string& type, int x, int y);
    
    //// 
    //virtual void onMoveOn(Actor& other)
@@ -224,6 +225,20 @@ inline Actor::SmartPtr Actor::create(Actor::Type type, int x, int y)
    return actor;
 }
 
+/**
+ *
+ **/
+inline Actor::SmartPtr Actor::createNpc(const std::string& type, int x, int y)
+{
+   Actor::SmartPtr npc = Actor::create(Actor::Type::Npc, x, y);
+
+   if(type == "orc")
+   {
+      npc->sprite = Graphics::getSprite('O');
+   }
+   
+   return npc;
+}
 
 //struct Item
 //   :  public Actor
@@ -231,6 +246,6 @@ inline Actor::SmartPtr Actor::create(Actor::Type type, int x, int y)
 //   std::string on_pickup = std::string{};
 //};
 
-} /* namespace engine */
+} /* namespace game */
 
 #endif /* QUEST_GAME_ACTOR_HPP_INCLUDED */

@@ -29,6 +29,10 @@ WWW              MMMMMMMM                     MMMM
        FFFF         FFFFFFFF       FFFFF F FF
       FFFFFF         FFFFFFFFF         FFFFFFF
        FFFFFFF   FFFFFFFFFFFFFFF  FFFFFFFFFFFFF
-active 
+active
 1
 pressure_plate P 5 5 D 6 6
+actors
+2
+orc 3 3
+orc 4 4

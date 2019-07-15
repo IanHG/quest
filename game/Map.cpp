@@ -8,7 +8,8 @@
 #include "../graphics/Graphics.hpp"
 #include "../graphics/Gui.hpp"
 #include "../util/FromString.hpp"
-#include "../util/SplitString.hpp"
+#include "../util/String.hpp"
+#include "Game.hpp"
 
 namespace Game
 {
@@ -63,8 +64,13 @@ Map Map::load(const std::string& map_name)
    // Create dynamic elements
    while(std::getline(map_file, str))
    {
-      if(str.compare("active"))
+      Graphics::Gui::instance->message(str);
+      Graphics::Gui::instance->message("\n");
+      str = Util::trim(str);
+
+      if(str.compare("active") == 0)
       {
+         Graphics::Gui::instance->message("active??");
          std::getline(map_file ,str);
          int n_active = Util::fromString<int>(str);
          for(int i = 0; i < n_active; ++i)
@@ -93,6 +99,48 @@ Map Map::load(const std::string& map_name)
                   };
             }
          }
+      }
+      else if(str.compare("actors") == 0)
+      {
+         std::getline(map_file ,str);
+         int n_actors = Util::fromString<int>(str);
+         Graphics::Gui::instance->message(std::to_string(n_actors));
+         Graphics::Gui::instance->message("\n");
+         for(int i = 0; i < n_actors; ++i)
+         {
+            std::getline(map_file, str);
+            auto line_split = Util::splitString(str);  
+
+            std::string actor_type = line_split[0];
+            int         x_actor    = Util::fromString<int>(line_split[1]);
+            int         y_actor    = Util::fromString<int>(line_split[2]);
+            
+            Graphics::Gui::instance->message(actor_type);
+            Graphics::Gui::instance->message(" ");
+            Graphics::Gui::instance->message(std::to_string(x_actor));
+            Graphics::Gui::instance->message(" ");
+            Graphics::Gui::instance->message(std::to_string(y_actor));
+            Graphics::Gui::instance->message("\n");
+
+            //
+            int actor_index = instance->createNpc(actor_type, x_actor, y_actor);
+
+            if(line_split.size() > 3)
+            {
+               // Load dialog
+               auto actor = instance->getActor(actor_index);
+               if(actor)
+               {
+               }
+            }
+
+            map.m_actors.emplace_back(actor_index);
+         }
+      }
+      else
+      {
+         Graphics::Gui::instance->message("no hit :C");
+         Graphics::Gui::instance->message("\n");
       }
    }
 

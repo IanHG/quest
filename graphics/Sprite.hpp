@@ -108,7 +108,7 @@ struct SpriteContainer
 
       // 0
       m_code      .emplace_back('0');
-      m_container .emplace_back(Sprite{BINARY_ZERO, color_pairs[COLOR::BLACK][COLOR::RED]});
+      m_container .emplace_back(Sprite{BINARY_ZERO, color_pairs[COLOR::BLACK][COLOR::DARKER_RED]});
       // 1
       m_code      .emplace_back('1');
       m_container .emplace_back(Sprite{BINARY_ONE, color_pairs[COLOR::BLACK][COLOR::BLACK]});
@@ -146,6 +146,11 @@ struct SpriteContainer
 };
 
 inline std::unique_ptr<SpriteContainer> SpriteContainer::instance = std::unique_ptr<SpriteContainer>{nullptr};
+
+inline SpriteProxy getSprite(char c)
+{
+   return SpriteContainer::instance->getSprite(c);
+}
 
 } /* namespace Graphics */
 

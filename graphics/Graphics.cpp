@@ -28,17 +28,13 @@ void initialize()
    if (has_colors()) 
    {
       start_color();
-      //init_pair(DEFAULT_COLOR, COLOR_WHITE,  COLOR_BLACK);
-      //init_pair(PLAYER_COLOR,  COLOR_CYAN,  COLOR_BLACK);
-      //init_pair(GRAIL_COLOR,   COLOR_YELLOW, COLOR_BLACK);
-      //init_pair(ENEMY_COLOR,   COLOR_WHITE,    COLOR_RED);
-      //init_pair(WATER_COLOR,   COLOR_CYAN,   COLOR_BLUE);
-      //init_pair(SMALL_WATER_COLOR,   COLOR_BLUE,   COLOR_BLACK);
-      //init_pair(TREE_COLOR,   COLOR_RED,   COLOR_GREEN);
-      //init_pair(BINARY_ZERO_COLOR,   COLOR_BLACK, COLOR_BLACK);
-      //init_pair(BINARY_ONE_COLOR ,   COLOR_BLACK, COLOR_RED);
-      //init_pair(TORCH_COLOR ,   COLOR_YELLOW, COLOR_BLACK);
-      //init_pair(WALL_COLOR ,   COLOR_WHITE, COLOR_RED);
+      /* Initialize colors 
+       * param 1     : color name
+       * param 2, 3, 4 : rgb content min = 0, max = 1000 
+       */
+      //init_color(COLOR::DARK_RED, 500, 0, 0);
+      //init_color(COLOR::DARKER_RED, 300, 0, 0);
+      //init_color(COLOR::LIGHT_RED, 1000, 300, 0);
       int pair = 0;
       for(int fg = COLOR::BLACK; fg < COLOR::SIZE; ++fg)
       {

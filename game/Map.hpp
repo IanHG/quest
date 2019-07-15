@@ -84,6 +84,8 @@ struct Map
    EnvironmentArray m_map          = EnvironmentArray{nullptr};
    WindowIndex      m_window_index = Graphics::Gui::WindowIndex{0};
 
+   std::vector<int> m_actors;
+
    Map()  = default;
    ~Map() = default;
    
