@@ -268,7 +268,7 @@ void Fight::start(Player& player, Character& other)
    if(this->player_won)
    {
       player.giveXp(1);
-
+      
       instance->removeActor(other.index);
    }
    else

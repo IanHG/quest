@@ -169,15 +169,15 @@ inline Character::~Character()
 struct Npc
    :  public Character
 {
-   //bool           hostile   = false;
-   bool           hostile   = true;
+   bool           hostile   = false;
    EncounterProxy encounter;
 
    Npc()
    {
       Actor    ::type   = Actor::Type::Npc;
       Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Error);
-      encounter         = EncounterProxy{ std::unique_ptr<Encounter>{ new Conversation{} } };
+      //encounter         = EncounterProxy{ std::unique_ptr<Encounter>{ new Conversation{} } };
+      encounter         = EncounterProxy{ std::unique_ptr<Encounter>{nullptr} };
    }
 
    void interact(Actor& other);
@@ -222,7 +222,8 @@ struct Player
 struct Item
    :  public Actor
 {
-   InventoryItem::Type item_index = InventoryItem::Type::None;
+   static constexpr int n_items_max = 8;
+   InventoryItem::Type  item_indices[n_items_max] = {InventoryItem::Type::None};
    
    Item()
    {

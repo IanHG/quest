@@ -158,7 +158,6 @@ void Item::interact(Actor& other)
       ,  0
       );
    auto window = Graphics::Gui::getWindow(window_index);
-   auto& item  = InventoryItemContainer::getItem(this->item_index);
 
    // Create event listener for encounter
    MultiEventRegisterer<event_handler<char, void(const char&)> > mer;
@@ -173,14 +172,21 @@ void Item::interact(Actor& other)
 
    mer.registerEvents(Engine::Keyboard::instance());
 
-   Engine::gameLoop([&pick_up, &window, &item](){
+   Engine::gameLoop([&pick_up, &window, this](){
       if(window)
       {
          auto win = window->getWindow();
 
          werase(win);
          wprintw(win, " \n");
-         wprintw(win, " You found a '%s'.", item.name);
+         for(int i = 0; i < this->n_items_max; ++i)
+         {
+            if(this->item_indices[i] != InventoryItem::Type::None)
+            {
+               auto& item  = InventoryItemContainer::getItem(this->item_indices[i]);
+               wprintw(win, " You found a '%s'.", item.name);
+            }
+         }
          wprintw(win, " \n");
          wprintw(win, " 1. Pick up\n");
          wprintw(win, " 2. Leave it\n");
@@ -197,7 +203,14 @@ void Item::interact(Actor& other)
       Character* other_character = dynamic_cast<Character*>(&other);
       if(other_character)
       {
-         other_character->pickUpItem(this->item_index, 1);
+         for(int i = 0; i < this->n_items_max; ++i)
+         {
+
+            if(this->item_indices[i] != InventoryItem::Type::None)
+            {
+               other_character->pickUpItem(this->item_indices[i], 1);
+            }
+         }
          instance->removeActor(this->index);
       }
    }
@@ -214,6 +227,12 @@ Actor::SmartPtr Actor::createActor(const std::string& type, int x, int y)
    {
       actor = Actor::create(Actor::Type::Npc, x, y);
       actor->sprite = Graphics::getSprite(Graphics::Sprite::Orc);
+
+      Npc* npc = dynamic_cast<Npc*>(actor.get());
+      if(npc)
+      {
+         npc->hostile = true;
+      }
    }
    else if(type == "rock")
    {
@@ -226,7 +245,7 @@ Actor::SmartPtr Actor::createActor(const std::string& type, int x, int y)
       actor->sprite = Graphics::getSprite(Graphics::Sprite::Chest);
 
       Item* item = dynamic_cast<Item*>(actor.get());
-      item->item_index = InventoryItem::Type::HealingPotion;
+      item->item_indices[0] = InventoryItem::Type::HealingPotion;
    }
    
    return actor;
