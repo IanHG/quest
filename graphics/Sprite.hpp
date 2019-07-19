@@ -26,6 +26,7 @@ struct Sprite
    ,  Water
    ,  ShallowWater
    ,  Tree
+   ,  SmallTree
    ,  Torch
    ,  Wall
    ,  BinaryZero
@@ -96,6 +97,7 @@ struct SpriteContainer
       m_container[Sprite::Water]         = Sprite{'~', color_pairs[COLOR::CYAN][COLOR::BLUE]};
       m_container[Sprite::ShallowWater]  = Sprite{'~', color_pairs[COLOR::BLUE][COLOR::BLACK]};
       m_container[Sprite::Tree]          = Sprite{'*', color_pairs[COLOR::RED][COLOR::GREEN]};
+      m_container[Sprite::SmallTree]     = Sprite{'*', color_pairs[COLOR::GREEN][COLOR::BLACK]};
       m_container[Sprite::Torch]         = Sprite{'*', color_pairs[COLOR::YELLOW][COLOR::BLACK]};
       m_container[Sprite::Wall]          = Sprite{'#', color_pairs[COLOR::WHITE][COLOR::RED]};
       m_container[Sprite::BinaryZero]    = Sprite{' ', color_pairs[COLOR::BLACK][COLOR::DARKER_RED]};

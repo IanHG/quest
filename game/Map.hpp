@@ -64,6 +64,8 @@ struct Environment
             return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::ShallowWater), true};
          case 'm':
             return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::SmallMountain), true};
+         case 'f':
+            return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::SmallTree), true};
          case '0':
             return Environment{Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::BinaryZero), true};
          case '1':

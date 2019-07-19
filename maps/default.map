@@ -19,16 +19,16 @@ WWW              MMMMMMMM                     MMMM
     WWWW       FFFF   MMMM
       w                mm            FFF
                                     FFF
-                                     FFFFF
-                                    FFFFF
-                                     FFFFF
-                                        FFFF
-                  FFFFFF         FFF    
-                    FFFFFFF     FFFFFF FF
-         FFFF        FFFFFFFFFF     FFFFF FF
-       FFFF         FFFFFFFF       FFFFF F FF
-      FFFFFF         FFFFFFFFF         FFFFFFF
-       FFFFFFF   FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+                                    fFFFFF       F
+                                    FFfFF       fF
+                                     FFFfFfF   fFF
+                    ff                  FFFFF FFFF
+                  FFFFFF         FFF          fFFF
+                    FFFFFFF     FFFFFF FF      fFF
+         FFFF        FFffFFFFFF     FfFFF FF     F
+       FFFF         FFFFFFFF       FFFFFfFfFF
+      FFFFFF         FFFFfFFFF         FFFFFFF
+       FFFFFFF   FFFFFFFFFFFFFFFFFFFFFFFFFfFFFF
 active
 1
 pressure_plate P 45 27 D 31 26

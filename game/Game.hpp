@@ -28,7 +28,6 @@ struct Game
    //! Create actor
    int createActor(Actor::Type type, int x, int y)
    {
-      Graphics::Gui::instance->message(" Creating actor ");
       for(decltype(actors.size()) i = 0; i < actors.size(); ++i)
       {
          if(!actors[i])
@@ -44,18 +43,15 @@ struct Game
 
    int createNpc(const std::string& type, int x, int y)
    {
-      Graphics::Gui::instance->message(" Creating NPC ");
       for(decltype(actors.size()) i = 0; i < actors.size(); ++i)
       {
          if(!actors[i])
          {
-            Graphics::Gui::instance->message(" NPC CREATED ");
             actors[i] = Actor::createActor(type, x, y);
             actors[i]->index = i;
             return i;
          }
       }
-      Graphics::Gui::instance->message(" ALL FULL ");
 
       return -1;
    }
@@ -110,7 +106,6 @@ struct Game
          {
             if(other->x == x && other->y == y)
             {
-               //Graphics::Gui::instance->message("Interaction!\n");
                actor.interact(*other);
                return true;
             }
@@ -219,6 +214,7 @@ inline void initialize()
    instance->cheats.addKeyboardCombo(std::vector<char>{'i', 'd', 'd', 'q', 'd'}, [](){
       Graphics::Gui::instance->message("LOL DOOM\n");
    });
+
    instance->cheats.addKeyboardCombo(std::vector<char>{'i', 'd', 'c', 'l', 'i', 'p'}, [&player](){
       if(!player.noclip)
       {
