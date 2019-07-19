@@ -23,17 +23,19 @@ WWW              MMMMMMMM                     MMMM
                                     FFFFF
                                      FFFFF
                                         FFFF
-                  FFFFFF         FFF
-                    FFFFFFF       FFFF FF
-         FFFF        FFFFFFFFF      FFFFF FF
+                  FFFFFF         FFF    
+                    FFFFFFF     FFFFFF FF
+         FFFF        FFFFFFFFFF     FFFFF FF
        FFFF         FFFFFFFF       FFFFF F FF
       FFFFFF         FFFFFFFFF         FFFFFFF
-       FFFFFFF   FFFFFFFFFFFFFFF  FFFFFFFFFFFFF
+       FFFFFFF   FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 active
 1
-pressure_plate P 5 5 D 6 6
+pressure_plate P 45 27 D 31 26
 actors
-3
+5
 orc 3 3
 orc 4 4
 rock 7 6
+healing_potion 38 28
+healing_potion 7 7

@@ -24,6 +24,8 @@ enum COLOR : int
 
 extern int color_pairs[COLOR::SIZE][COLOR::SIZE];
 
+using CharType = chtype;
+
 /**
  * Initialize graphics
  **/
@@ -37,7 +39,7 @@ void finalize();
 /**
  *
  **/
-void drawCell(WINDOW* win, int x, int y, char symbol, int color_pair);
+void drawCell(WINDOW* win, int x, int y, CharType symbol, int color_pair);
 
 } /* namespace Graphics */
 

@@ -33,11 +33,6 @@ void Pushable::interact(Actor& other)
    }
 }
 
-void Item::interact(Actor& other)
-{
-
-}
-
 void Npc::interact(Actor& other)
 {
    if(other.type == Actor::Type::Player)
@@ -104,6 +99,15 @@ void Player::drawStats() const
       wprintw(win, "  \n");
       wprintw(win, "  Level       %i\n", this->level);
       wprintw(win, "  XP          %i/%i\n", this->xp, this->xp_for_next_level);
+      wprintw(win, "  \n");
+      for(int i = 0; i < int(this->inventory.size()); ++i)
+      {
+         if(inventory[i].item_count > 0)
+         {
+            auto& item = InventoryItemContainer::getItem(this->inventory[i].item_index);
+            wprintw(win, " %i %s\n", inventory[i].item_count, item.name);
+         }
+      }
    }
 }
 
@@ -140,6 +144,68 @@ void Player::update()
    this->checkLevelUp();
 }
 
+void Item::interact(Actor& other)
+{
+   int pick_up = -1;
+   
+   // Create window to display pick up interaction
+   auto main_window   = Graphics::Gui::getWindow(Graphics::Gui::Window::MAIN);
+   auto window_index = Graphics::Gui::createWindow
+      (  Graphics::Gui::Window::MAIN
+      ,  main_window->xMax()
+      ,  main_window->yMax() / 2
+      ,  0
+      ,  0
+      );
+   auto window = Graphics::Gui::getWindow(window_index);
+   auto& item  = InventoryItemContainer::getItem(this->item_index);
+
+   // Create event listener for encounter
+   MultiEventRegisterer<event_handler<char, void(const char&)> > mer;
+   
+   mer.addEvent('1', [&pick_up](const char&){
+      pick_up = 1;
+   });
+   
+   mer.addEvent('2', [&pick_up](const char&){
+      pick_up = 2;
+   });
+
+   mer.registerEvents(Engine::Keyboard::instance());
+
+   Engine::gameLoop([&pick_up, &window, &item](){
+      if(window)
+      {
+         auto win = window->getWindow();
+
+         werase(win);
+         wprintw(win, " \n");
+         wprintw(win, " You found a '%s'.", item.name);
+         wprintw(win, " \n");
+         wprintw(win, " 1. Pick up\n");
+         wprintw(win, " 2. Leave it\n");
+         wprintw(win, " \n");
+      }
+
+      return (pick_up == -1);
+   });
+   
+   mer.deregisterEvents(Engine::Keyboard::instance());
+   
+   if(pick_up == 1)
+   {
+      Character* other_character = dynamic_cast<Character*>(&other);
+      if(other_character)
+      {
+         other_character->pickUpItem(this->item_index, 1);
+         instance->removeActor(this->index);
+      }
+   }
+   
+   // Destroy window
+   Graphics::Gui::destroyWindow(window_index);
+}
+
 Actor::SmartPtr Actor::createActor(const std::string& type, int x, int y)
 {
    Actor::SmartPtr actor = Actor::SmartPtr{nullptr};
@@ -153,6 +219,14 @@ Actor::SmartPtr Actor::createActor(const std::string& type, int x, int y)
    {
       actor = Actor::create(Actor::Type::Pushable, x, y);
       actor->sprite = Graphics::getSprite(Graphics::Sprite::Rock);
+   }
+   else if(type == "healing_potion")
+   {
+      actor = Actor::create(Actor::Type::Item, x, y);
+      actor->sprite = Graphics::getSprite(Graphics::Sprite::Chest);
+
+      Item* item = dynamic_cast<Item*>(actor.get());
+      item->item_index = InventoryItem::Type::HealingPotion;
    }
    
    return actor;

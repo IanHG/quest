@@ -150,7 +150,7 @@ inline void initialize()
 
    instance = std::unique_ptr<Game>{ new Game{} };
    instance->player.x = 10;
-   instance->player.y = 10;
+   instance->player.y = 6;
    
    instance->actors.resize(10);
    

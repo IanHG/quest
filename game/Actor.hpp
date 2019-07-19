@@ -7,7 +7,10 @@
 #include "../graphics/TypeDefs.hpp"
 #include "../graphics/Sprite.hpp"
 
+#include "../engine/Engine.hpp"
+
 #include "Encounter.hpp"
+#include "Item.hpp"
 
 namespace Game
 {
@@ -92,33 +95,6 @@ struct Pushable
    virtual void interact(Actor& other);
 };
 
-struct Item
-   :  public Actor
-{
-   using ItemIndex = int;
-
-   ItemIndex index = -1;
-
-   Item()
-   {
-      Actor    ::type   = Actor::Type::Item;
-      Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite('+');
-   }
-
-   virtual void interact(Actor& other);
-
-   Actor::SmartPtr create(ItemIndex type, int x, int y)
-   {
-      auto item  = Actor::create(Actor::Type::Item, x, y);
-
-      Item* item_ptr = dynamic_cast<Item*>(item.get());
-
-      item_ptr->index = type;
-
-      return item;
-   }
-};
-
 struct Character
    :  public Actor
 {
@@ -134,6 +110,56 @@ struct Character
    int hp_max       = 1;
    int mp           = 1;
    int mp_max       = 1;
+
+   struct InventoryCounter
+   {
+      InventoryItem::Type item_index = InventoryItem::Type::None;
+      int                 item_count = 0;
+   };
+
+   std::vector<InventoryCounter> inventory;
+
+   void pickUpItem(InventoryItem::Type item_index, int item_count)
+   {
+      for(int i = 0; i < int(inventory.size()); ++i)
+      {
+         if(item_index == inventory[i].item_index)
+         {
+            inventory[i].item_count += item_count;
+            return;
+         }
+      }
+      
+      inventory.emplace_back(InventoryCounter{item_index, item_count});
+   }
+
+   void useItem(int inventory_index, int times)
+   {
+      if(inventory_index >= 0 && inventory_index < int(inventory.size()))
+      {
+         auto& item_counter = this->inventory[inventory_index];
+         auto& item         = InventoryItemContainer::getItem(item_counter.item_index);
+         for(int itimes = 0; itimes < times; ++itimes)
+         {
+            item.on_usage(*this);
+            item_counter.item_count -= 1;
+            if(item_counter.item_count <= 0)
+            {
+               break;
+            }
+         }
+      }
+   }
+
+   void incrementHp(int hp_incr)
+   {
+      this->hp = std::min(hp + hp_incr, hp_max);
+   }
+   
+   void incrementMp(int mp_incr)
+   {
+      this->mp = std::min(mp + mp_incr, mp_max);
+   }
 };
 
 inline Character::~Character()
@@ -191,6 +217,22 @@ struct Player
 };
 
 /**
+ * Item actor 
+ **/
+struct Item
+   :  public Actor
+{
+   InventoryItem::Type item_index = InventoryItem::Type::None;
+   
+   Item()
+   {
+      Actor    ::type   = Actor::Type::Item;
+   }
+   
+   void interact(Actor& other);
+};
+
+/**
  * Create actor
  **/
 inline Actor::SmartPtr Actor::create(Actor::Type type, int x, int y)
@@ -245,11 +287,6 @@ inline Actor::SmartPtr Actor::create(Actor::Type type, int x, int y)
 //   return actor;
 //}
 
-//struct Item
-//   :  public Actor
-//{
-//   std::string on_pickup = std::string{};
-//};
 
 } /* namespace game */
 

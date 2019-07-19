@@ -75,7 +75,7 @@ void finalize()
 /**
  *
  **/
-void drawCell(WINDOW* win, int x, int y, char symbol, int color_pair)
+void drawCell(WINDOW* win, int x, int y, CharType symbol, int color_pair)
 {
    wattron (win, COLOR_PAIR(color_pair));
    mvwaddch(win, y, x, symbol);

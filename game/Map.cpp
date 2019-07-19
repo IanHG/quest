@@ -10,6 +10,7 @@
 #include "../util/FromString.hpp"
 #include "../util/String.hpp"
 #include "Game.hpp"
+#include "Item.hpp"
 
 namespace Game
 {

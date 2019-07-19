@@ -34,12 +34,13 @@ struct Sprite
    ,  Rock
    ,  Plate
    ,  Door
+   ,  Chest
    ,  Error
    ,  Size
    };
 
-   char  symbol = 'E';
-   int   color  = 0;
+   CharType symbol = 'E';
+   int      color  = 0;
 };
 
 /**
@@ -103,7 +104,15 @@ struct SpriteContainer
       m_container[Sprite::Rock]          = Sprite{'0', color_pairs[COLOR::CYAN][COLOR::BLACK]};
       m_container[Sprite::Plate]         = Sprite{' ', color_pairs[COLOR::WHITE][COLOR::RED]};
       m_container[Sprite::Door]          = Sprite{'D', color_pairs[COLOR::WHITE][COLOR::RED]};
+      m_container[Sprite::Chest]         = Sprite{'?', color_pairs[COLOR::YELLOW][COLOR::BLACK]};
       m_container[Sprite::Error]         = Sprite{'E', color_pairs[COLOR::BLUE][COLOR::RED]};
+      
+      //std::string braille_msg = 
+      // " ⠁⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏\n"
+      // "⠐⠑⠒⠓⠔⠕⠖⠗⠘⠙⠚⠛⠜⠝⠞⠟\n"
+      // "⠠⠡⠢⠣⠤⠥⠦⠧⠨⠩⠪⠫⠬⠭⠮⠯\n"
+      // "⠰⠱⠲⠳⠴⠵⠶⠷⠸⠹⠺⠻⠼⠽⠾⠿\n";
+      //
    }
 
    /**
