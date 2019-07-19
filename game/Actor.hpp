@@ -3,6 +3,7 @@
 #define QUEST_GAME_ACTOR_HPP_INCLUDED
 
 #include <memory>
+#include <iostream>
 
 #include "../graphics/TypeDefs.hpp"
 #include "../graphics/Sprite.hpp"
@@ -224,10 +225,33 @@ struct Item
 {
    static constexpr int n_items_max = 8;
    InventoryItem::Type  item_indices[n_items_max] = {InventoryItem::Type::None};
-   
+   int                  item_count  [n_items_max] = {0};
+
    Item()
    {
       Actor    ::type   = Actor::Type::Item;
+   }
+
+   void addItem(InventoryItem::Type item_index, int count)
+   {
+      for(int i = 0; i < n_items_max; ++i)
+      {
+         if(item_indices[i] == item_index)
+         {
+            item_count[i] += count;
+            return;
+         }
+      }
+
+      for(int i = 0; i < n_items_max; ++i)
+      {
+         if(item_indices[i] == InventoryItem::Type::None)
+         {
+            item_indices[i] =  item_index;
+            item_count[i]   += count;
+            return;
+         }
+      }
    }
    
    void interact(Actor& other);

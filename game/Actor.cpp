@@ -184,7 +184,7 @@ void Item::interact(Actor& other)
             if(this->item_indices[i] != InventoryItem::Type::None)
             {
                auto& item  = InventoryItemContainer::getItem(this->item_indices[i]);
-               wprintw(win, " You found a '%s'.", item.name);
+               wprintw(win, " You found %i '%s'.\n", this->item_count[i], item.name);
             }
          }
          wprintw(win, " \n");
@@ -205,10 +205,9 @@ void Item::interact(Actor& other)
       {
          for(int i = 0; i < this->n_items_max; ++i)
          {
-
             if(this->item_indices[i] != InventoryItem::Type::None)
             {
-               other_character->pickUpItem(this->item_indices[i], 1);
+               other_character->pickUpItem(this->item_indices[i], this->item_count[i]);
             }
          }
          instance->removeActor(this->index);
@@ -239,13 +238,10 @@ Actor::SmartPtr Actor::createActor(const std::string& type, int x, int y)
       actor = Actor::create(Actor::Type::Pushable, x, y);
       actor->sprite = Graphics::getSprite(Graphics::Sprite::Rock);
    }
-   else if(type == "healing_potion")
+   else if(type == "chest")
    {
       actor = Actor::create(Actor::Type::Item, x, y);
       actor->sprite = Graphics::getSprite(Graphics::Sprite::Chest);
-
-      Item* item = dynamic_cast<Item*>(actor.get());
-      item->item_indices[0] = InventoryItem::Type::HealingPotion;
    }
    
    return actor;

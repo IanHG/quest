@@ -127,8 +127,17 @@ Map Map::load(const std::string& map_name)
                auto actor = instance->getActor(actor_index);
                if(actor)
                {
+                  if(line_split[0] == "chest")
+                  {
+                     Item* item = dynamic_cast<Item*>(actor);
+                     for(int i = 3; i < int(line_split.size()); ++i)
+                     {
+                        item->addItem(InventoryItem::stringToType(line_split[i]), 1);
+                     }
+                  }
                }
             }
+
 
             map.m_actors.emplace_back(actor_index);
          }

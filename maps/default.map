@@ -37,5 +37,5 @@ actors
 orc 3 3
 orc 4 4
 rock 7 6
-healing_potion 38 28
-healing_potion 7 7
+chest 38 28 HealingPotion HealingPotion MagicPotion
+chest 7 7 HealingPotion HealingPotion MagicPotion

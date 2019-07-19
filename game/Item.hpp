@@ -22,6 +22,24 @@ struct InventoryItem
    ,  Size
    };
 
+   static Type stringToType(const std::string& type_str)
+   {
+      if(type_str == "HealingPotion")
+      {
+         return Type::HealingPotion;
+      }
+      else if(type_str == "MagicPotion")
+      {
+         return Type::MagicPotion;
+      }
+      else if(type_str == "Sword")
+      {
+         return Type::Sword;
+      }
+      
+      return Type::None;
+   }
+
    char name[56];
    std::function<void(Character&)> on_usage;
 };
