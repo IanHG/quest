@@ -243,6 +243,11 @@ Actor::SmartPtr Actor::createActor(const std::string& type, int x, int y)
       actor = Actor::create(Actor::Type::Item, x, y);
       actor->sprite = Graphics::getSprite(Graphics::Sprite::Chest);
    }
+   else if(type == "lever")
+   {
+      actor = Actor::create(Actor::Type::Interactable, x, y);
+      actor->sprite = Graphics::getSprite(Graphics::Sprite::LeverLeft);
+   }
    
    return actor;
 }

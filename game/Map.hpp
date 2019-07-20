@@ -156,7 +156,9 @@ struct Map
    static Map load(const std::string& map_name); //, const std::string& map_path = );
 };
 
-//
+/**
+ * World map
+ **/
 struct WorldMap
 {
    static constexpr int x_size             = 5;

@@ -36,6 +36,8 @@ struct Sprite
    ,  Plate
    ,  Door
    ,  Chest
+   ,  LeverLeft
+   ,  LeverRight
    ,  Error
    ,  Size
    };
@@ -106,6 +108,8 @@ struct SpriteContainer
       m_container[Sprite::Rock]          = Sprite{'0', color_pairs[COLOR::CYAN][COLOR::BLACK]};
       m_container[Sprite::Plate]         = Sprite{' ', color_pairs[COLOR::WHITE][COLOR::RED]};
       m_container[Sprite::Door]          = Sprite{'D', color_pairs[COLOR::WHITE][COLOR::RED]};
+      m_container[Sprite::LeverLeft]     = Sprite{'\\', color_pairs[COLOR::CYAN][COLOR::BLACK]};
+      m_container[Sprite::LeverRight]    = Sprite{'/', color_pairs[COLOR::CYAN][COLOR::BLACK]};
       m_container[Sprite::Chest]         = Sprite{'?', color_pairs[COLOR::YELLOW][COLOR::BLACK]};
       m_container[Sprite::Error]         = Sprite{'E', color_pairs[COLOR::BLUE][COLOR::RED]};
       

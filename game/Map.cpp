@@ -108,8 +108,6 @@ Map Map::load(const std::string& map_name)
       {
          std::getline(map_file ,str);
          int n_actors = Util::fromString<int>(str);
-         Graphics::Gui::instance->message(std::to_string(n_actors));
-         Graphics::Gui::instance->message("\n");
          for(int i = 0; i < n_actors; ++i)
          {
             std::getline(map_file, str);
@@ -136,9 +134,23 @@ Map Map::load(const std::string& map_name)
                         item->addItem(InventoryItem::stringToType(line_split[i]), 1);
                      }
                   }
+                  else if(line_split[0] == "lever")
+                  {
+                     Interactable* interactable = dynamic_cast<Interactable*>(actor);
+
+                     interactable->interaction = [](Interactable& interactable, Actor& actor){
+                        if(interactable.sprite->symbol == '/')
+                        {
+                           interactable.sprite = Graphics::getSprite(Graphics::Sprite::LeverLeft);
+                        }
+                        else
+                        {
+                           interactable.sprite = Graphics::getSprite(Graphics::Sprite::LeverRight);
+                        }
+                     };
+                  }
                }
             }
-
 
             map.m_actors.emplace_back(actor_index);
          }

@@ -7,6 +7,7 @@
 
 #include "../graphics/TypeDefs.hpp"
 #include "../graphics/Sprite.hpp"
+#include "../graphics/Gui.hpp"
 
 #include "../engine/Engine.hpp"
 
@@ -23,7 +24,7 @@ struct Actor
    using SmartPtr = std::unique_ptr<Actor>;
 
    //
-   enum class Type : int { Error, Player, Npc, Pushable, Item };
+   enum class Type : int { Error, Player, Npc, Pushable, Item, Interactable };
 
    // Sprite
    //Graphics::SpriteProxy sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Error);
@@ -88,11 +89,27 @@ struct Pushable
       Actor    ::type   = Actor::Type::Pushable;
    }
 
-   virtual ~Pushable()
-   {
-   }
+   virtual ~Pushable() = default;
 
    virtual void interact(Actor& other);
+};
+
+struct Interactable
+   :  public Actor
+{
+   std::function<void(Interactable&, Actor&)> interaction = [](Interactable& interactable, Actor& actor){};
+
+   Interactable()
+   {
+      Actor    ::type   = Actor::Type::Interactable;
+   }
+
+   virtual ~Interactable() = default;
+   
+   virtual void interact(Actor& other)
+   {
+      interaction(*this, other);
+   }
 };
 
 struct Character
@@ -179,6 +196,8 @@ struct Npc
       encounter         = EncounterProxy{ std::unique_ptr<Encounter>{nullptr} };
    }
 
+   virtual ~Npc() = default;
+
    void interact(Actor& other);
 };
 
@@ -201,6 +220,8 @@ struct Player
       Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Player);
       Character::hp     = 10;
    }
+
+   virtual ~Player() = default;
    
    void interact(Actor& other);
 
@@ -228,6 +249,8 @@ struct Item
    {
       Actor    ::type   = Actor::Type::Item;
    }
+
+   virtual ~Item() = default;
 
    void addItem(InventoryItem::Type item_index, int count)
    {
@@ -274,6 +297,9 @@ inline Actor::SmartPtr Actor::create(Actor::Type type, int x, int y)
          break;
       case Actor::Type::Item:
          actor = Actor::SmartPtr{ new Item() };
+         break;
+      case Actor::Type::Interactable:
+         actor = Actor::SmartPtr{ new Interactable() };
          break;
       case Actor::Type::Error:
       default:
