@@ -26,8 +26,8 @@ struct Actor
    enum class Type : int { Error, Player, Npc, Pushable, Item };
 
    // Sprite
-   //Graphics::SpriteProxy sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::empty);
-   Graphics::SpriteProxy sprite = Graphics::SpriteContainer::instance->getSprite(' ');
+   //Graphics::SpriteProxy sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Error);
+   const Graphics::Sprite* sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Error);
 
    // 
    int index = -1;
@@ -86,7 +86,6 @@ struct Pushable
    Pushable()
    {
       Actor    ::type   = Actor::Type::Pushable;
-      Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite('w');
    }
 
    virtual ~Pushable()
@@ -176,7 +175,6 @@ struct Npc
    Npc()
    {
       Actor    ::type   = Actor::Type::Npc;
-      Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Error);
       //encounter         = EncounterProxy{ std::unique_ptr<Encounter>{ new Conversation{} } };
       encounter         = EncounterProxy{ std::unique_ptr<Encounter>{nullptr} };
    }
@@ -200,7 +198,6 @@ struct Player
    Player()
    {
       Actor    ::type   = Actor::Type::Player;
-      //Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::PLAYER);
       Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Player);
       Character::hp     = 10;
    }

@@ -44,34 +44,34 @@ struct Sprite
    int      color  = 0;
 };
 
-/**
- *
- **/
-struct SpriteProxy
-{
-   const Sprite* m_sprite;
-
-   SpriteProxy(const Sprite* const sprite)
-      :  m_sprite(sprite)
-   {
-   }
-
-   SpriteProxy(SpriteProxy&& other)
-      :  m_sprite(other.m_sprite)
-   {
-   }
-
-   SpriteProxy& operator=(SpriteProxy&& other)
-   {
-      m_sprite = other.m_sprite;
-      return *this;
-   }
-
-   const Sprite* const operator->() const
-   {
-      return m_sprite;
-   }
-};
+///**
+// *
+// **/
+//struct SpriteProxy
+//{
+//   const Sprite* m_sprite = nullptr;
+//
+//   SpriteProxy(const Sprite* const sprite)
+//      :  m_sprite(sprite)
+//   {
+//   }
+//
+//   SpriteProxy(SpriteProxy&& other)
+//      :  m_sprite(other.m_sprite)
+//   {
+//   }
+//
+//   SpriteProxy& operator=(SpriteProxy&& other)
+//   {
+//      m_sprite = other.m_sprite;
+//      return *this;
+//   }
+//
+//   const Sprite* const operator->() const
+//   {
+//      return m_sprite;
+//   }
+//};
 
 /**
  *
@@ -120,13 +120,13 @@ struct SpriteContainer
    /**
     * Get sprite 
     **/
-   SpriteProxy getSprite(int sprite_index) const
+   const Sprite* getSprite(int sprite_index) const
    {
       if(sprite_index < int(m_container.size()) && sprite_index >= 0)
       {
-         return SpriteProxy{ &(m_container[sprite_index]) };
+         return &(m_container[sprite_index]);
       }
-      return SpriteProxy{ &(m_container[0]) };
+      return &(m_container[0]);
    }
    
    /**
@@ -143,7 +143,7 @@ struct SpriteContainer
 
 inline std::unique_ptr<SpriteContainer> SpriteContainer::instance = std::unique_ptr<SpriteContainer>{nullptr};
 
-inline SpriteProxy getSprite(char c)
+inline auto getSprite(char c)
 {
    return SpriteContainer::instance->getSprite(c);
 }

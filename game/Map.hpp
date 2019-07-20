@@ -19,7 +19,8 @@ struct Map;
 struct Environment
 {
    // Sprite
-   Graphics::SpriteProxy sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Empty);
+   //Graphics::SpriteProxy sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Empty);
+   const Graphics::Sprite* sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Empty);
    
    // Environment characteristics
    bool passable = true;
@@ -111,14 +112,36 @@ struct Map
    // Check move
    bool isMoveOkay(const Actor& actor, int y, int x) const;
 
+   bool isMapExit(const Actor& actor, int x, int y) const;
+   
+   // Trigger enviroment move on
    void moveOn(Actor& actor)
    {
       m_map[actor.y + y_size * actor.x].onMoveOn(*this, actor);
    }
    
+   // Trigger enviroment move off
    void moveOff(Actor& actor)
    {
       m_map[actor.y + y_size * actor.x].onMoveOff(*this, actor);
+   }
+
+   //
+   void exitNorth(int& x_world, int& y_world) const
+   {
+      y_world -= 1;
+   }
+   void exitSouth(int& x_world, int& y_world) const
+   {
+      y_world += 1;
+   }
+   void exitEast (int& x_world, int& y_world) const
+   {
+      x_world += 1;
+   }
+   void exitWest (int& x_world, int& y_world) const
+   {
+      x_world -= 1;
    }
 
    // Draw map
@@ -127,8 +150,31 @@ struct Map
    // Draw actor
    void drawActor(const Actor& actor) const;
 
+   void destroy();
+
    // Load map from file
    static Map load(const std::string& map_name); //, const std::string& map_path = );
+};
+
+//
+struct WorldMap
+{
+   static constexpr int x_size             = 5;
+   static constexpr int y_size             = 5;
+   static constexpr int string_size        = 64;
+   char world[x_size][y_size][string_size] = {nullptr};
+
+   enum Exit : int { North, South, East, West };
+
+   int x_world = 0;
+   int y_world = 0;
+
+   std::string getMap(int x_get, int y_get) const
+   {
+      return std::string{world[x_get][y_get]};
+   }
+
+   static WorldMap load(const std::string& world_map_name); // , const std::string& world_map_path = "");
 };
 
 } /* namespace Game */

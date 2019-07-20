@@ -20,7 +20,10 @@ struct Game
 
    Player   player;
    ActorVec actors;
+   
+   WorldMap world_map;
    Map      map;
+   
    Cheats   cheats;
 
    bool game_ended = false;
@@ -113,6 +116,7 @@ struct Game
       }
       return false;
    }
+   
 
    void gameOver()
    {
@@ -123,6 +127,8 @@ struct Game
    {
       return this->game_ended;
    }
+   
+   void handleMapExit(WorldMap::Exit exit);
 };
 
 inline std::unique_ptr<Game> instance = std::unique_ptr<Game>{ nullptr };
@@ -139,6 +145,79 @@ inline void performMove(Actor& actor, int x, int y)
    instance->map.moveOn(actor);
 }
 
+inline void handleMapExit(WorldMap::Exit exit)
+{
+   int x_world_new = instance->world_map.x_world;
+   int y_world_new = instance->world_map.y_world;
+
+   switch(exit)
+   {
+      case WorldMap::Exit::North:
+         instance->map.exitNorth(x_world_new, y_world_new);
+         break;
+      case WorldMap::Exit::South:
+         instance->map.exitSouth(x_world_new, y_world_new);
+         break;
+      case WorldMap::Exit::East:
+         instance->map.exitEast(x_world_new, y_world_new);
+         break;
+      case WorldMap::Exit::West:
+         instance->map.exitWest(x_world_new, y_world_new);
+         break;
+      default:
+         break;
+   }
+
+   
+   bool changed_map = false;
+   if (  (x_world_new != instance->world_map.x_world) 
+      && (x_world_new >= 0) 
+      && (x_world_new < instance->world_map.x_size)
+      )
+   {
+      changed_map = true;
+   }
+   if (  (y_world_new != instance->world_map.y_world)
+      && (y_world_new >= 0) 
+      && (y_world_new < instance->world_map.y_size)
+      )
+   {
+      changed_map = true;
+   }
+
+   if(changed_map)
+   {
+      auto map_name = instance->world_map.getMap(x_world_new, y_world_new);
+
+      if(!map_name.empty())
+      {
+         instance->world_map.x_world = x_world_new;
+         instance->world_map.y_world = y_world_new;
+         
+         instance->map.destroy();
+         instance->map = Map::load(map_name);
+
+         switch(exit)
+         {
+            case WorldMap::Exit::North:
+               instance->player.y = instance->map.y_size - 1;
+               break;
+            case WorldMap::Exit::South:
+               instance->player.y = 0;
+               break;
+            case WorldMap::Exit::East:
+               instance->player.x = 0;
+               break;
+            case WorldMap::Exit::West:
+               instance->player.x = instance->map.x_size - 1;
+               break;
+            default:
+               break;
+         }
+      }
+   }
+}
+
 inline void initialize()
 {
    seedRolls();
@@ -149,7 +228,8 @@ inline void initialize()
    
    instance->actors.resize(10);
    
-   instance->map = Map::load("default.map");
+   instance->world_map = WorldMap::load("WHATEVER");
+   instance->map       = Map     ::load(instance->world_map.getMap(0, 0));
 
    Engine::Keyboard& kb = Engine::Keyboard::instance();
    auto& player   = instance->player;
@@ -162,6 +242,10 @@ inline void initialize()
          {
 		      performMove(player, player.x, player.y - 1);
          }
+         else if(game_map.isMapExit(player, player.x, player.y - 1))
+         {
+            handleMapExit(WorldMap::Exit::North);
+         }
       }
    };
 
@@ -172,6 +256,10 @@ inline void initialize()
          {
 		      performMove(player, player.x, player.y + 1);
 	      }
+         else if(game_map.isMapExit(player, player.x, player.y + 1))
+         {
+            handleMapExit(WorldMap::Exit::South);
+         }
       }
    };
 
@@ -182,6 +270,10 @@ inline void initialize()
          {
 		      performMove(player, player.x - 1, player.y);
 	      }
+         else if(game_map.isMapExit(player, player.x - 1, player.y))
+         {
+            handleMapExit(WorldMap::Exit::West);
+         }
       }
    };
 
@@ -192,6 +284,10 @@ inline void initialize()
          {
 		      performMove(player, player.x + 1, player.y);
 	      }
+         else if(game_map.isMapExit(player, player.x + 1, player.y))
+         {
+            handleMapExit(WorldMap::Exit::East);
+         }
       }
    };
    
@@ -229,6 +325,8 @@ inline void initialize()
    });
    instance->cheats.enable();
 }
+
+
 
 
 } /* namespace Game */

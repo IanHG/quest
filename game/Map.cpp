@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <cstring>
 
 #include "../graphics/Graphics.hpp"
 #include "../graphics/Gui.hpp"
@@ -28,7 +29,7 @@ Map Map::load(const std::string& map_name)
 
    // Read map sizse
    std::getline(map_file, str);
-   int max_line, max_col;
+   int max_line = 0, max_col = 0;
    std::istringstream s_str(str);
    s_str >> max_line >> max_col;
    
@@ -154,6 +155,18 @@ Map Map::load(const std::string& map_name)
 }
 
 /**
+ *
+ **/
+void Map::destroy()
+{
+   for(int i = 0; i < int(m_actors.size()); ++i)
+   {
+      instance->removeActor(m_actors[i]);
+   }
+   Graphics::Gui::destroyWindow(m_window_index);
+}
+
+/**
  * Check that move is ok
  **/
 bool Map::isMoveOkay(const Actor& actor, int y, int x) const
@@ -182,6 +195,23 @@ bool Map::isMoveOkay(const Actor& actor, int y, int x) const
 }
 
 /**
+ *
+ **/
+bool Map::isMapExit(const Actor& actor, int x, int y) const
+{
+   if (  (x < 0) 
+      || (x >= this->x_size) 
+      || (y < 0) 
+      || (y >= this->y_size)
+      )
+   {
+      return true;
+   }
+
+   return false;
+}
+
+/**
  * Draw map to framebuffer
  **/
 void Map::draw() const
@@ -203,19 +233,30 @@ void Map::draw() const
  **/
 void Map::drawActor(const Actor& actor) const
 {
-   auto& sprite_fg = actor.sprite;
-   auto& sprite_bg = m_map[actor.y + this->y_size * actor.x].sprite;
-
    short int color_fg;
    short int color_bg;
    short int dummy;
 
-   pair_content(sprite_fg->color, &color_fg, &dummy);
-   pair_content(sprite_bg->color, &dummy   , &color_bg);
+   pair_content(actor.sprite->color, &color_fg, &dummy);
+   pair_content(m_map[actor.y + this->y_size * actor.x].sprite->color, &dummy, &color_bg);
    
    auto window = Graphics::Gui::getWindow(m_window_index)->getWindow();
    
-   Graphics::drawCell(window, actor.x, actor.y, sprite_fg->symbol, Graphics::color_pairs[color_fg][color_bg]);
+   Graphics::drawCell(window, actor.x, actor.y, actor.sprite->symbol, Graphics::color_pairs[color_fg][color_bg]);
+}
+
+/**
+ *
+ **/
+WorldMap WorldMap::load(const std::string& world_map_name)
+{
+   WorldMap world_map;
+
+   strncpy(world_map.world[0][0], "default.map\0", world_map.string_size);
+   strncpy(world_map.world[1][0], "default.map\0", world_map.string_size);
+   strncpy(world_map.world[0][1], "default.map\0", world_map.string_size);
+
+   return world_map;
 }
 
 } /* namespace game */
