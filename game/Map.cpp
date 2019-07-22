@@ -12,6 +12,7 @@
 #include "../util/String.hpp"
 #include "Game.hpp"
 #include "Item.hpp"
+#include "Roll.hpp"
 
 namespace Game
 {
@@ -21,6 +22,11 @@ namespace Game
  **/
 Map Map::load(const std::string& map_name)
 {
+   if(map_name.empty())
+   {
+      return GenerateDungeon();
+   }
+
    Map map;
 
    std::ifstream map_file{"maps/" + map_name};
@@ -166,6 +172,33 @@ Map Map::load(const std::string& map_name)
    return map;
 }
 
+Map Map::create(int x_size, int y_size)
+{
+   Map map;
+
+   map.x_size = x_size;
+   map.y_size = y_size;
+
+   // Create window to hold map
+   auto window = Graphics::Gui::getWindow(Graphics::Gui::Window::MAIN);
+
+   map.x_offset = window->xMax() / 2 - map.x_size / 2;
+   map.y_offset = window->yMax() / 2 - map.y_size / 2;
+   
+   //std::cerr << " SIZE   : " << map.x_size   << " " << map.y_size   << std::endl;
+   //std::cerr << " OFFSET : " << map.x_offset << " " << map.y_offset << std::endl;
+   map.m_map          = EnvironmentArray{ new Environment[map.x_size * map.y_size] };
+   map.m_window_index = Graphics::Gui::createWindow
+      (  Graphics::Gui::Window::MAIN
+      ,  map.x_size + 2
+      ,  map.y_size + 2
+      ,  map.x_offset
+      ,  map.y_offset
+      );
+
+   return map;
+}
+
 /**
  *
  **/
@@ -264,11 +297,132 @@ WorldMap WorldMap::load(const std::string& world_map_name)
 {
    WorldMap world_map;
 
-   strncpy(world_map.world[0][0], "default.map\0", world_map.string_size);
-   strncpy(world_map.world[1][0], "default.map\0", world_map.string_size);
-   strncpy(world_map.world[0][1], "default.map\0", world_map.string_size);
+   //strncpy(world_map.world[0][0], "default.map\0", world_map.string_size);
+   //strncpy(world_map.world[1][0], "default.map\0", world_map.string_size);
+   //strncpy(world_map.world[0][1], "default.map\0", world_map.string_size);
 
    return world_map;
+}
+
+/**
+ *
+ **/
+Map GenerateDungeon()
+{
+   // Create map
+   int map_x_size = 70;
+   int map_y_size = 40;
+
+   //std::cerr   << " MAP SIZE : " << (50 * 70) << std::endl
+   //            << " ENV SIZE : " << sizeof(Environment) << std::endl;
+
+   Map map = Map::create(map_x_size, map_y_size);
+
+   // Generate rooms
+   struct room_definition
+   {
+      int x_start;
+      int y_start;
+      int x_size;
+      int y_size;
+   };
+
+   struct range
+   {
+      int begin;
+      int end;
+   };
+   
+   range x_size_range{3, map.x_size / 3};
+   range y_size_range{3, map.y_size / 3};
+
+   auto checkRoom = [&map](const room_definition& room){
+      for(int y = room.y_start; y < room.y_start + room.y_size; ++y)
+      {
+         for(int x = room.x_start; x < room.x_start + room.x_size; ++x)
+         {
+            if(!map.m_map[y + map.y_size * x].empty())
+            {
+               return false;
+            }
+         }
+      }
+      return true;
+   };
+
+   auto paintRoom = [&map](const room_definition& room){
+      for(int y = room.y_start; y < room.y_start + room.y_size; ++y)
+      {
+         for(int x = room.x_start; x < room.x_start + room.x_size; ++x)
+         {
+            map.m_map[y + map.y_size * x] = Environment::create('#');
+         }
+      }
+   };
+
+   auto drawRoom = [&map](const room_definition& room){
+      for(int y = room.y_start; y < room.y_start + room.y_size; ++y)
+      {
+         map.m_map[y + map.y_size * (room.x_start)              ] = Environment::create('#');
+         //std::cerr << " index : " << (y + map.y_size * (room.x_start + room.x_size - 1)) << std::endl;
+         map.m_map[y + map.y_size * (room.x_start + room.x_size - 1)] = Environment::create('#');
+      }
+      for(int x = room.x_start + 1; x < room.x_start + room.x_size - 1; ++x)
+      {
+         map.m_map[room.y_start                   + map.y_size * x] = Environment::create('#');
+         map.m_map[room.y_start + room.y_size - 1 + map.y_size * x] = Environment::create('#');
+      }
+   };
+
+   auto findXyCoord = [&map](room_definition& room){
+      auto findXCoord = [&map](){
+         return rollDieRange(0, map.x_size - 1);
+      };
+      auto findYCoord = [&map](){
+         return rollDieRange(0, map.y_size - 1);
+      };
+      
+      room.x_start = findXCoord();
+      room.y_start = findYCoord();
+      room.x_size  = std::min(rollDieRange(5, map.x_size / 3), map.x_size - room.x_start - 1);
+      room.y_size  = std::min(rollDieRange(5, map.y_size / 3), map.y_size - room.y_start - 1);
+
+      if(room.x_size < 5 || room.y_size < 5)
+      {
+         return false;
+      } 
+
+      return true;
+      
+      //std::cerr   << room.x_start << " "
+      //            << room.y_start << " "
+      //            << room.x_size << " "
+      //            << room.y_size << " "
+      //            << room.x_start + room.x_size << " "
+      //            << room.y_start + room.y_size << " "
+      //            << std::endl;
+      //Graphics::Gui::instance->message(std::to_string(room.x_start));
+      //Graphics::Gui::instance->message(" ");
+      //Graphics::Gui::instance->message(std::to_string(room.y_start));
+      //Graphics::Gui::instance->message(" ");
+      //Graphics::Gui::instance->message(std::to_string(room.x_size));
+      //Graphics::Gui::instance->message(" ");
+      //Graphics::Gui::instance->message(std::to_string(room.y_size));
+      //Graphics::Gui::instance->message("\n");
+   };
+
+   for(int i = 0; i < 5; ++i)
+   {
+      room_definition room;
+      while(!findXyCoord(room)) {};
+      drawRoom(room);
+   }
+
+   // Connect rooms / make doors
+
+
+   // Spawn monsters and create chests
+   return map;
 }
 
 } /* namespace game */

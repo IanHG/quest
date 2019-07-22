@@ -278,6 +278,19 @@ struct Item
 };
 
 /**
+ *
+ **/
+struct Programable
+   :  public Actor
+{
+   
+
+   ~Programable() = default;
+
+   void interact(Actor& other);
+};
+
+/**
  * Create actor
  **/
 inline Actor::SmartPtr Actor::create(Actor::Type type, int x, int y)

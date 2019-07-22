@@ -42,6 +42,11 @@ struct Environment
       this->move_off(map, *this, actor);
    }
 
+   bool empty() const
+   {
+      return (this->sprite == Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Empty));
+   }
+
    // Create field
    static Environment create(char c)
    {
@@ -154,6 +159,9 @@ struct Map
 
    // Load map from file
    static Map load(const std::string& map_name); //, const std::string& map_path = );
+
+   //
+   static Map create(int x_size, int y_size);
 };
 
 /**
@@ -177,6 +185,16 @@ struct WorldMap
    }
 
    static WorldMap load(const std::string& world_map_name); // , const std::string& world_map_path = "");
+};
+
+// Generate dungeon
+Map GenerateDungeon();
+
+/**
+ *
+ **/
+struct MapGenerator
+{
 };
 
 } /* namespace Game */

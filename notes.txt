@@ -3,3 +3,11 @@ Make entity system
 Make entity index, to get entities stored in GameState / Game
 
 
+
+
+MAKE ITEM THAT MOVES WITH PLAYER! need confusion potion (invert controls) to get it!
+
+
+Make dungeon generator
+
+QR codes as godly shrines for a code (just encode letters)

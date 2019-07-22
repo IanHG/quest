@@ -16,4 +16,9 @@ int rollDie(int dice)
    return rand() % dice;
 }
 
+int rollDieRange(int begin, int end)
+{
+   return rand() % (end - begin) + begin;
+}
+
 } /* namespace Game */

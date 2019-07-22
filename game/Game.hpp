@@ -189,7 +189,7 @@ inline void handleMapExit(WorldMap::Exit exit)
    {
       auto map_name = instance->world_map.getMap(x_world_new, y_world_new);
 
-      if(!map_name.empty())
+      //if(!map_name.empty())
       {
          instance->world_map.x_world = x_world_new;
          instance->world_map.y_world = y_world_new;
