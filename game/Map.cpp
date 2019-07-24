@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iostream>
 #include <cstring>
+#include <cmath>
 
 #include "../graphics/Graphics.hpp"
 #include "../graphics/Gui.hpp"
@@ -304,77 +305,147 @@ WorldMap WorldMap::load(const std::string& world_map_name)
    return world_map;
 }
 
+int midPoint(int x1, int x2)
+{
+   if(x1 > x2)
+   {
+      return int(x2 + (x1 - x2) / 2);
+   }
+   else
+   {
+      return int(x1 + (x2 - x1) / 2);
+   }
+};
+
 /**
  *
  **/
-Map GenerateDungeon()
+Map GenerateDungeon(int map_x_size, int map_y_size)
 {
-   // Create map
-   int map_x_size = 70;
-   int map_y_size = 40;
-
-   //std::cerr   << " MAP SIZE : " << (50 * 70) << std::endl
-   //            << " ENV SIZE : " << sizeof(Environment) << std::endl;
-
-   Map map = Map::create(map_x_size, map_y_size);
-
-   // Generate rooms
-   struct room_definition
+   /**
+    * Some local structs and functions
+    **/
+   struct Point
    {
-      int x_start;
-      int y_start;
-      int x_size;
-      int y_size;
+      int x;
+      int y;
    };
 
-   struct range
+   enum class Type     : int { Room, NSCon, EWCon };
+   enum class ConnType : int { None, N, S, E, W, NW, NE, SW, SE };
+
+   struct Room
    {
-      int begin;
-      int end;
+      // Top left
+      Point l;
+      // Bottom right
+      Point r;
+
+      Type  type      = Type::Room;
+      bool  connected = false;
+      bool  draw      = true;
+      int   index     = -1;
+   };
+
+   struct Range
+   {
+      int min;
+      int max;
    };
    
-   range x_size_range{3, map.x_size / 3};
-   range y_size_range{3, map.y_size / 3};
-
-   auto checkRoom = [&map](const room_definition& room){
-      for(int y = room.y_start; y < room.y_start + room.y_size; ++y)
+   auto checkRoomOverlap = [](const Room& room, const std::vector<Room>& rooms){
+      auto check = [](const Room& room1, const Room& room2)
       {
-         for(int x = room.x_start; x < room.x_start + room.x_size; ++x)
+         //bool noOverlap =  room1.l.x > room2.r.x ||
+         //                  room2.l.x > room1.r.x ||
+         //                  room1.l.y > room2.r.y ||
+         //                  room2.l.y > room1.r.y;
+         
+         bool noOverlap =  room1.l.x - 1 > room2.r.x + 1 ||
+                           room2.l.x - 1 > room1.r.x + 1 ||
+                           room1.l.y - 1 > room2.r.y + 1 ||
+                           room2.l.y - 1 > room1.r.y + 1;
+
+         return !noOverlap;
+      };
+
+      for(int i = 0; i < int(rooms.size()); ++i)
+      {
+         auto& other_room = rooms[i];
+         if(&room == &other_room)
          {
-            if(!map.m_map[y + map.y_size * x].empty())
+            continue;
+         }
+         if (check(room, other_room) && check(other_room, room))
+         {
+            return true;
+         }
+      }
+
+      return false;
+   };
+
+   auto drawRoom = [](const Room& room, Map& map){
+      if(!room.draw)
+      {
+         return;
+      }
+
+      for(int y = room.l.y; y <= room.r.y; ++y)
+      {
+         map.m_map[y + map.y_size * (room.l.x)] = Environment::create('#');
+         map.m_map[y + map.y_size * (room.r.x)] = Environment::create('#');
+      }
+      for(int x = room.l.x; x <= room.r.x; ++x)
+      {
+         map.m_map[(room.l.y) + map.y_size * x] = Environment::create('#');
+         map.m_map[(room.r.y) + map.y_size * x] = Environment::create('#');
+      }
+
+      switch(room.type)
+      {
+         case Type::NSCon:
+         {
+            int x = room.l.x + (room.r.x - room.l.x) / 2;
+            map.m_map[room.l.y + map.y_size * x] = Environment::create(' ');
+            map.m_map[room.r.y + map.y_size * x] = Environment::create(' ');
+            map.m_map[midPoint(room.l.y, room.r.y) + map.y_size * midPoint(room.l.x, room.r.x)].sprite = Graphics::getSprite(Graphics::Sprite::DoorHorizontal);
+            break;
+         }
+         case Type::EWCon:
+         {
+            int y = room.l.y + (room.r.y - room.l.y) / 2;
+            map.m_map[y + map.y_size * room.l.x] = Environment::create(' ');
+            map.m_map[y + map.y_size * room.r.x] = Environment::create(' ');
+            map.m_map[midPoint(room.l.y, room.r.y) + map.y_size * midPoint(room.l.x, room.r.x)].sprite = Graphics::getSprite(Graphics::Sprite::DoorVertical);
+            break;
+         }
+         case Type::Room:
+         {
+            switch(room.index) 
             {
-               return false;
+               case 0:
+                  map.m_map[room.l.y + map.y_size * room.l.x].sprite = Graphics::getSprite(Graphics::Sprite::Zero);
+                  break;
+               case 1:
+                  map.m_map[room.l.y + map.y_size * room.l.x].sprite = Graphics::getSprite(Graphics::Sprite::One);
+                  break;
+               case 2:
+                  map.m_map[room.l.y + map.y_size * room.l.x].sprite = Graphics::getSprite(Graphics::Sprite::Two);
+                  break;
+               case 3:
+                  map.m_map[room.l.y + map.y_size * room.l.x].sprite = Graphics::getSprite(Graphics::Sprite::Three);
+                  break;
             }
          }
-      }
-      return true;
-   };
-
-   auto paintRoom = [&map](const room_definition& room){
-      for(int y = room.y_start; y < room.y_start + room.y_size; ++y)
-      {
-         for(int x = room.x_start; x < room.x_start + room.x_size; ++x)
+         default:
          {
-            map.m_map[y + map.y_size * x] = Environment::create('#');
+            break;
          }
       }
    };
 
-   auto drawRoom = [&map](const room_definition& room){
-      for(int y = room.y_start; y < room.y_start + room.y_size; ++y)
-      {
-         map.m_map[y + map.y_size * (room.x_start)              ] = Environment::create('#');
-         //std::cerr << " index : " << (y + map.y_size * (room.x_start + room.x_size - 1)) << std::endl;
-         map.m_map[y + map.y_size * (room.x_start + room.x_size - 1)] = Environment::create('#');
-      }
-      for(int x = room.x_start + 1; x < room.x_start + room.x_size - 1; ++x)
-      {
-         map.m_map[room.y_start                   + map.y_size * x] = Environment::create('#');
-         map.m_map[room.y_start + room.y_size - 1 + map.y_size * x] = Environment::create('#');
-      }
-   };
-
-   auto findXyCoord = [&map](room_definition& room){
+   auto findXyCoord = [&checkRoomOverlap](Room& room, const Map& map, const std::vector<Room>& rooms, const std::vector<Room>& conns){
       auto findXCoord = [&map](){
          return rollDieRange(0, map.x_size - 1);
       };
@@ -382,46 +453,256 @@ Map GenerateDungeon()
          return rollDieRange(0, map.y_size - 1);
       };
       
-      room.x_start = findXCoord();
-      room.y_start = findYCoord();
-      room.x_size  = std::min(rollDieRange(5, map.x_size / 3), map.x_size - room.x_start - 1);
-      room.y_size  = std::min(rollDieRange(5, map.y_size / 3), map.y_size - room.y_start - 1);
+      room.l.x = findXCoord();
+      room.l.y = findYCoord();
+      int x_size  = std::min(rollDieRange(5, map.x_size / 2), map.x_size - room.l.x - 1);
+      int y_size  = std::min(rollDieRange(x_size - 5, x_size - 2), map.y_size - room.l.y - 1);
 
-      if(room.x_size < 5 || room.y_size < 5)
+      if((x_size < 5) || (y_size < 5))
       {
          return false;
-      } 
+      }
+
+      room.r.x = room.l.x + x_size;
+      room.r.y = room.l.y + y_size;
+
+      if(checkRoomOverlap(room, rooms) || checkRoomOverlap(room, conns))
+      {
+         return false;
+      }
 
       return true;
-      
-      //std::cerr   << room.x_start << " "
-      //            << room.y_start << " "
-      //            << room.x_size << " "
-      //            << room.y_size << " "
-      //            << room.x_start + room.x_size << " "
-      //            << room.y_start + room.y_size << " "
-      //            << std::endl;
-      //Graphics::Gui::instance->message(std::to_string(room.x_start));
-      //Graphics::Gui::instance->message(" ");
-      //Graphics::Gui::instance->message(std::to_string(room.y_start));
-      //Graphics::Gui::instance->message(" ");
-      //Graphics::Gui::instance->message(std::to_string(room.x_size));
-      //Graphics::Gui::instance->message(" ");
-      //Graphics::Gui::instance->message(std::to_string(room.y_size));
-      //Graphics::Gui::instance->message("\n");
    };
 
-   for(int i = 0; i < 5; ++i)
+   auto allConnected = [](const std::vector<Room>& rooms)
    {
-      room_definition room;
-      while(!findXyCoord(room)) {};
-      drawRoom(room);
+      for(int i = 0; i < int(rooms.size()); ++i)
+      {
+         if(!rooms[i].connected)
+         {
+            return false;
+         }
+      }
+      return true;
+   };
+
+   auto findClosest = [](const std::vector<Room>& rooms, int& room_index, int& room_index_closest, ConnType& type)
+   {
+      auto distance = [](const Point& point1, const Point& point2){
+         int diff_x = point1.x - point2.x;
+         int diff_y = point1.y - point2.y;
+         return std::sqrt(diff_x * diff_x + diff_y * diff_y);
+      };
+
+      auto calculateDistance = [&distance](const Room& room1, const Room& room2, ConnType& type){
+         assert(room1.connected);
+         assert(!room2.connected);
+
+         //std::stringstream sstr;
+         
+         // These are a little bit of a dirty hack
+         bool left   = room2.r.x <= room1.l.x + 1;
+         bool right  = room1.r.x <= room2.l.x + 1;
+
+         bool top    = room2.r.y <= room1.l.y + 1;
+         bool bottom = room1.r.y <= room2.l.y + 1;
+
+         //sstr  << " ROOM 1 " << room1.index 
+         //      << " " << room1.l.x << " " << room1.l.y
+         //      << " " << room1.r.x << " " << room1.r.y
+         //      << std::endl;
+         //sstr  << " ROOM 2 " << room2.index 
+         //      << " " << room2.l.x << " " << room2.l.y
+         //      << " " << room2.r.x << " " << room2.r.y
+         //      << std::endl;
+         //sstr  << std::boolalpha 
+         //      << "   L : " << left 
+         //      << "   R : " << right
+         //      << "   T : " << top
+         //      << "   B : " << bottom << std::endl;
+
+         //Graphics::Gui::instance->message(sstr.str());
+         
+         if (top && left) {
+            type = ConnType::NW;
+            return distance(Point{room1.l.x, room1.r.y}, Point{room2.r.x, room2.l.y});
+         } else if (left && bottom) {
+            type = ConnType::SW;
+            return distance(Point{room1.l.x, room1.l.y}, Point{room2.r.x, room2.r.y});
+         } else if (bottom && right) {
+            type = ConnType::SE;
+            return distance(Point{room1.r.x, room1.l.y}, Point{room2.l.x, room2.r.y});
+         } else if (right && top) {
+            type = ConnType::NE;
+            return distance(Point{room1.r.x, room1.r.y}, Point{room2.l.x, room2.l.y});
+         } else if (left) {
+            type = ConnType::W;
+            return double(room1.l.x - room2.r.x);
+         } else if (right) {
+            type = ConnType::E;
+            return double(room2.l.x - room1.r.x);
+         } else if (bottom) {
+            type = ConnType::S;
+            return double(room2.r.y - room1.l.y);
+         } else if (top) {
+            type = ConnType::N;
+            return double(room1.l.y - room2.r.y);
+         } else {
+            return 0.0;
+         }
+      };
+
+      //room_index            = 0;
+      //room_index_closest    = 0;
+      double distance_value = -1.0;
+      
+      for(int i = 0; i < int(rooms.size()); ++i)
+      {
+         if(!rooms[i].connected)
+         {
+            for(int j = 0; j < int(rooms.size()); ++j)
+            {
+               if(rooms[j].connected)
+               {
+                  ConnType type_new;
+                  auto distance_value_new = calculateDistance(rooms[j], rooms[i], type_new);
+                  //if(type == ConnType::N || type == ConnType::S || type == ConnType::E || type == ConnType::W)
+                  //{
+                  if(distance_value_new < distance_value || (distance_value == -1.0))
+                  {
+                     room_index         = j;
+                     room_index_closest = i;
+                     distance_value     = distance_value_new;
+                     type               = type_new;
+                  }
+                  //}
+               }
+            }
+         }
+      }
+   };
+
+   auto createConnection = [](std::vector<Room>& rooms, std::vector<Room>& conns, int room_index, int room_index_closest, ConnType type)
+   {
+
+      auto& room         = rooms[room_index];
+      auto& room_connect = rooms[room_index_closest];
+
+      Room connection;
+      connection.connected   = true;
+      if(type == ConnType::N)
+      {
+         Graphics::Gui::instance->message("N " + std::to_string(room.index) + " " + std::to_string(room_connect.index) + "\n");
+         connection.type    = Type::NSCon;
+         Range intersection = { std::max(room.l.x, room_connect.l.x), std::min(room.r.x, room_connect.r.x) };
+         connection.l       = Point{midPoint(intersection.min, intersection.max) - 1, room_connect.r.y};
+         connection.r       = Point{midPoint(intersection.min, intersection.max) + 1, room.l.y};
+         conns.emplace_back(connection);
+         room_connect.connected = true;
+      }
+      else if(type == ConnType::S)
+      {
+         Graphics::Gui::instance->message("S " + std::to_string(room.index) + " " + std::to_string(room_connect.index) + "\n");
+         connection.type    = Type::NSCon;
+         Range intersection = { std::max(room.l.x, room_connect.l.x), std::min(room.r.x, room_connect.r.x) };
+         connection.l       = Point{midPoint(intersection.min, intersection.max) - 1, room.r.y};
+         connection.r       = Point{midPoint(intersection.min, intersection.max) + 1, room_connect.l.y};
+         conns.emplace_back(connection);
+         room_connect.connected = true;
+      }
+      else if(type == ConnType::E)
+      {
+         Graphics::Gui::instance->message("E " + std::to_string(room.index) + " " + std::to_string(room_connect.index) + "\n");
+         connection.type = Type::EWCon;
+         Range intersection = { std::max(room.l.y, room_connect.l.y), std::min(room.r.y, room_connect.r.y) };
+         connection.l       = Point{room.r.x,         midPoint(intersection.min, intersection.max) - 1};
+         connection.r       = Point{room_connect.l.x, midPoint(intersection.min, intersection.max) + 1};
+         conns.emplace_back(connection);
+         room_connect.connected = true;
+      }
+      else if(type == ConnType::W)
+      {
+         Graphics::Gui::instance->message("W " + std::to_string(room.index) + " " + std::to_string(room_connect.index) + "\n");
+         connection.type = Type::EWCon;
+         Range intersection = { std::max(room.l.y, room_connect.l.y), std::min(room.r.y, room_connect.r.y) };
+         connection.l       = Point{room_connect.r.x, midPoint(intersection.min, intersection.max) - 1};
+         connection.r       = Point{room.l.x        , midPoint(intersection.min, intersection.max) + 1};
+         conns.emplace_back(connection);
+         room_connect.connected = true;
+      }
+
+      //conns.emplace_back(connection);
+
+   };
+
+   // Create map
+   Map map = Map::create(map_x_size, map_y_size);
+   
+   Range x_size_range{5, map.x_size / 2};
+   Range y_size_range{5, map.y_size / 2};
+   
+   std::vector<Room> rooms;
+   std::vector<Room> conns;
+   
+   // Create rooms
+   for(int i = 0; i < 50; ++i)
+   {
+      Room room;
+      int tries = 0;
+      bool success = false;
+      while((tries != 100) && !(success = findXyCoord(room, map, rooms, conns)))
+      {
+         ++tries;
+      };
+      if(success)
+      {
+         room.index = rooms.size();
+         rooms.emplace_back(room);
+      }
    }
 
    // Connect rooms / make doors
+   rooms[0].connected = true;
+   int tries = 0;
+   while(!allConnected(rooms) && (tries != 100))
+   {  
+      ConnType type          = ConnType::None;
+      int room_index         = 0;
+      int room_index_closest = 0;
+      findClosest(rooms, room_index, room_index_closest, type);
+      if(type != ConnType::None)
+      {
+         createConnection(rooms, conns, room_index, room_index_closest, type);
+      }
+      ++tries;
+   }
 
+   for(int i = 0; i < int(rooms.size()); ++i)
+   {
+      if(!rooms[i].connected)
+      {
+         rooms[i].draw = false;
+      }
+   }
+   
+   // Draw
+   for(int i = 0; i < int(rooms.size()); ++i)
+   {
+      drawRoom(rooms[i], map);
+   }
+   for(int i = 0; i < conns.size(); ++i)
+   {
+      drawRoom(conns[i], map);
+   }
 
+   // Place entry and exit
+   // Place entry in rooms[0]
+   // Do breadth first search for last conected room and place exit there
+   
    // Spawn monsters and create chests
+   // Place chest with frequency scaling with number connections (Low connection == High chest percentage)
+   // Place traps
+   
    return map;
 }
 

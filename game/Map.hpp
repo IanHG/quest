@@ -188,7 +188,7 @@ struct WorldMap
 };
 
 // Generate dungeon
-Map GenerateDungeon();
+Map GenerateDungeon(int map_x_size = 70, int map_y_size = 40);
 
 /**
  *

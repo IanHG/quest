@@ -35,9 +35,17 @@ struct Sprite
    ,  Rock
    ,  Plate
    ,  Door
+   ,  DoorVertical
+   ,  DoorHorizontal
    ,  Chest
    ,  LeverLeft
    ,  LeverRight
+   ,  DungeonStairsUp
+   ,  DungeonStairsDown
+   ,  Zero
+   ,  One
+   ,  Two
+   ,  Three
    ,  Error
    ,  Size
    };
@@ -108,9 +116,17 @@ struct SpriteContainer
       m_container[Sprite::Rock]          = Sprite{'0', color_pairs[COLOR::CYAN][COLOR::BLACK]};
       m_container[Sprite::Plate]         = Sprite{' ', color_pairs[COLOR::WHITE][COLOR::RED]};
       m_container[Sprite::Door]          = Sprite{'D', color_pairs[COLOR::WHITE][COLOR::RED]};
+      m_container[Sprite::DoorVertical]  = Sprite{'|', color_pairs[COLOR::WHITE][COLOR::BLACK]};
+      m_container[Sprite::DoorHorizontal]= Sprite{'_', color_pairs[COLOR::WHITE][COLOR::BLACK]};
+      m_container[Sprite::DungeonStairsUp]   = Sprite{'<', color_pairs[COLOR::WHITE][COLOR::BLACK]};
+      m_container[Sprite::DungeonStairsDown] = Sprite{'>', color_pairs[COLOR::WHITE][COLOR::BLACK]};
       m_container[Sprite::LeverLeft]     = Sprite{'\\', color_pairs[COLOR::CYAN][COLOR::BLACK]};
       m_container[Sprite::LeverRight]    = Sprite{'/', color_pairs[COLOR::CYAN][COLOR::BLACK]};
       m_container[Sprite::Chest]         = Sprite{'?', color_pairs[COLOR::YELLOW][COLOR::BLACK]};
+      m_container[Sprite::Zero]          = Sprite{'0', color_pairs[COLOR::YELLOW][COLOR::BLACK]};
+      m_container[Sprite::One]           = Sprite{'1', color_pairs[COLOR::YELLOW][COLOR::BLACK]};
+      m_container[Sprite::Two]           = Sprite{'2', color_pairs[COLOR::YELLOW][COLOR::BLACK]};
+      m_container[Sprite::Three]         = Sprite{'3', color_pairs[COLOR::YELLOW][COLOR::BLACK]};
       m_container[Sprite::Error]         = Sprite{'E', color_pairs[COLOR::BLUE][COLOR::RED]};
       
       //std::string braille_msg = 
