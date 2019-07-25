@@ -18,6 +18,7 @@ struct InventoryItem
    {  None
    ,  HealingPotion
    ,  MagicPotion
+   ,  Key
    ,  Sword
    ,  Size
    };
@@ -36,12 +37,17 @@ struct InventoryItem
       {
          return Type::Sword;
       }
+      else if(type_str == "Key")
+      {
+         return Type::Key;
+      }
       
       return Type::None;
    }
 
    char name[56];
-   std::function<void(Character&)> on_usage;
+
+   std::function<void(Character&)> on_usage = nullptr;
 };
 
 struct InventoryItemContainer

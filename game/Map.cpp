@@ -344,7 +344,17 @@ Map GenerateDungeon(int map_x_size, int map_y_size)
       Type  type      = Type::Room;
       bool  connected = false;
       bool  draw      = true;
+      int   depth     = 0;
       int   index     = -1;
+
+      bool  has_key   = false;
+      bool  is_entry  = false;
+      bool  is_exit   = false;
+
+      // connection specific
+      int   from        = -1;
+      int   to          = -1;
+      bool  door_locked = false;
    };
 
    struct Range
@@ -409,7 +419,15 @@ Map GenerateDungeon(int map_x_size, int map_y_size)
             int x = room.l.x + (room.r.x - room.l.x) / 2;
             map.m_map[room.l.y + map.y_size * x] = Environment::create(' ');
             map.m_map[room.r.y + map.y_size * x] = Environment::create(' ');
-            map.m_map[midPoint(room.l.y, room.r.y) + map.y_size * midPoint(room.l.x, room.r.x)].sprite = Graphics::getSprite(Graphics::Sprite::DoorHorizontal);
+            int door_index = midPoint(room.l.y, room.r.y) + map.y_size * midPoint(room.l.x, room.r.x);
+            if(room.door_locked)
+            {
+               map.m_map[door_index].sprite = Graphics::getSprite(Graphics::Sprite::DoorLockedHorizontal);
+            }
+            else
+            {
+               map.m_map[door_index].sprite = Graphics::getSprite(Graphics::Sprite::DoorHorizontal);
+            }
             break;
          }
          case Type::EWCon:
@@ -417,7 +435,15 @@ Map GenerateDungeon(int map_x_size, int map_y_size)
             int y = room.l.y + (room.r.y - room.l.y) / 2;
             map.m_map[y + map.y_size * room.l.x] = Environment::create(' ');
             map.m_map[y + map.y_size * room.r.x] = Environment::create(' ');
-            map.m_map[midPoint(room.l.y, room.r.y) + map.y_size * midPoint(room.l.x, room.r.x)].sprite = Graphics::getSprite(Graphics::Sprite::DoorVertical);
+            int door_index = midPoint(room.l.y, room.r.y) + map.y_size * midPoint(room.l.x, room.r.x);
+            if(room.door_locked)
+            {
+               map.m_map[door_index].sprite = Graphics::getSprite(Graphics::Sprite::DoorLockedVertical);
+            }
+            else
+            {
+               map.m_map[door_index].sprite = Graphics::getSprite(Graphics::Sprite::DoorVertical);
+            }
             break;
          }
          case Type::Room:
@@ -437,6 +463,25 @@ Map GenerateDungeon(int map_x_size, int map_y_size)
                   map.m_map[room.l.y + map.y_size * room.l.x].sprite = Graphics::getSprite(Graphics::Sprite::Three);
                   break;
             }
+            if(room.has_key)
+            {
+               Graphics::Gui::instance->message("creating key \n");
+               map.m_map[room.l.y + map.y_size * room.l.x].sprite = Graphics::getSprite(Graphics::Sprite::Grail);
+            }
+            if(room.is_entry)
+            {
+               int roll_x = rollDieRange(room.l.x + 1, room.r.x - 1);
+               int roll_y = rollDieRange(room.l.y + 1, room.r.y - 1);
+            
+               map.m_map[roll_y + map.y_size * roll_x].sprite = Graphics::getSprite(Graphics::Sprite::DungeonStairsUp);
+            }
+            if(room.is_exit)
+            {
+               int roll_x = rollDieRange(room.l.x + 1, room.r.x - 1);
+               int roll_y = rollDieRange(room.l.y + 1, room.r.y - 1);
+            
+               map.m_map[roll_y + map.y_size * roll_x].sprite = Graphics::getSprite(Graphics::Sprite::DungeonStairsDown);
+            }
          }
          default:
          {
@@ -455,8 +500,8 @@ Map GenerateDungeon(int map_x_size, int map_y_size)
       
       room.l.x = findXCoord();
       room.l.y = findYCoord();
-      int x_size  = std::min(rollDieRange(5, map.x_size / 2), map.x_size - room.l.x - 1);
-      int y_size  = std::min(rollDieRange(x_size - 5, x_size - 2), map.y_size - room.l.y - 1);
+      int x_size  = std::min(rollDieRange(5, map.x_size / 3), map.x_size - room.l.x - 1);
+      int y_size  = std::min(rollDieRange(x_size - 5, x_size - 3), map.y_size - room.l.y - 1);
 
       if((x_size < 5) || (y_size < 5))
       {
@@ -568,7 +613,7 @@ Map GenerateDungeon(int map_x_size, int map_y_size)
                   auto distance_value_new = calculateDistance(rooms[j], rooms[i], type_new);
                   //if(type == ConnType::N || type == ConnType::S || type == ConnType::E || type == ConnType::W)
                   //{
-                  if(distance_value_new < distance_value || (distance_value == -1.0))
+                  if(distance_value_new <= distance_value || (distance_value == -1.0))
                   {
                      room_index         = j;
                      room_index_closest = i;
@@ -587,48 +632,55 @@ Map GenerateDungeon(int map_x_size, int map_y_size)
 
       auto& room         = rooms[room_index];
       auto& room_connect = rooms[room_index_closest];
+      
+      bool connection_created = false;
 
       Room connection;
-      connection.connected   = true;
+      connection.connected = true;
+      connection.from      = room.index;
+      connection.to        = room_connect.index;
       if(type == ConnType::N)
       {
-         Graphics::Gui::instance->message("N " + std::to_string(room.index) + " " + std::to_string(room_connect.index) + "\n");
+         //Graphics::Gui::instance->message("N " + std::to_string(room.index) + " " + std::to_string(room_connect.index) + "\n");
          connection.type    = Type::NSCon;
          Range intersection = { std::max(room.l.x, room_connect.l.x), std::min(room.r.x, room_connect.r.x) };
          connection.l       = Point{midPoint(intersection.min, intersection.max) - 1, room_connect.r.y};
          connection.r       = Point{midPoint(intersection.min, intersection.max) + 1, room.l.y};
-         conns.emplace_back(connection);
-         room_connect.connected = true;
+         connection_created = true;
       }
       else if(type == ConnType::S)
       {
-         Graphics::Gui::instance->message("S " + std::to_string(room.index) + " " + std::to_string(room_connect.index) + "\n");
+         //Graphics::Gui::instance->message("S " + std::to_string(room.index) + " " + std::to_string(room_connect.index) + "\n");
          connection.type    = Type::NSCon;
          Range intersection = { std::max(room.l.x, room_connect.l.x), std::min(room.r.x, room_connect.r.x) };
          connection.l       = Point{midPoint(intersection.min, intersection.max) - 1, room.r.y};
          connection.r       = Point{midPoint(intersection.min, intersection.max) + 1, room_connect.l.y};
-         conns.emplace_back(connection);
-         room_connect.connected = true;
+         connection_created = true;
       }
       else if(type == ConnType::E)
       {
-         Graphics::Gui::instance->message("E " + std::to_string(room.index) + " " + std::to_string(room_connect.index) + "\n");
+         //Graphics::Gui::instance->message("E " + std::to_string(room.index) + " " + std::to_string(room_connect.index) + "\n");
          connection.type = Type::EWCon;
          Range intersection = { std::max(room.l.y, room_connect.l.y), std::min(room.r.y, room_connect.r.y) };
          connection.l       = Point{room.r.x,         midPoint(intersection.min, intersection.max) - 1};
          connection.r       = Point{room_connect.l.x, midPoint(intersection.min, intersection.max) + 1};
-         conns.emplace_back(connection);
-         room_connect.connected = true;
+         connection_created = true;
       }
       else if(type == ConnType::W)
       {
-         Graphics::Gui::instance->message("W " + std::to_string(room.index) + " " + std::to_string(room_connect.index) + "\n");
+         //Graphics::Gui::instance->message("W " + std::to_string(room.index) + " " + std::to_string(room_connect.index) + "\n");
          connection.type = Type::EWCon;
          Range intersection = { std::max(room.l.y, room_connect.l.y), std::min(room.r.y, room_connect.r.y) };
          connection.l       = Point{room_connect.r.x, midPoint(intersection.min, intersection.max) - 1};
          connection.r       = Point{room.l.x        , midPoint(intersection.min, intersection.max) + 1};
-         conns.emplace_back(connection);
+         connection_created = true;
+      }
+      
+      if(connection_created)
+      {
+         room_connect.depth     = room.depth + 1;
          room_connect.connected = true;
+         conns.emplace_back(connection);
       }
 
       //conns.emplace_back(connection);
@@ -638,13 +690,12 @@ Map GenerateDungeon(int map_x_size, int map_y_size)
    // Create map
    Map map = Map::create(map_x_size, map_y_size);
    
-   Range x_size_range{5, map.x_size / 2};
-   Range y_size_range{5, map.y_size / 2};
-   
    std::vector<Room> rooms;
    std::vector<Room> conns;
    
    // Create rooms
+   // 
+   // Make some weighing algorithm, that will try to place rooms in less dense areas
    for(int i = 0; i < 50; ++i)
    {
       Room room;
@@ -684,24 +735,66 @@ Map GenerateDungeon(int map_x_size, int map_y_size)
          rooms[i].draw = false;
       }
    }
+
+   // Lock some doors
+   for(int i = 0; i < int(conns.size()); ++i)
+   {
+      auto roll = rollDie(10);
+      if(roll >= 5)
+      {
+         auto depth = rooms[conns[i].to].depth - 1;
+         auto room_roll = rollDie(int(rooms.size()));
+         int j = room_roll; 
+         do
+         {
+            if(rooms[j].connected && !rooms[j].has_key && (rooms[j].depth <= depth))
+            {
+               rooms[j].has_key     = true;
+               conns[i].door_locked = true;
+               break;
+            }
+            ++j;
+         } while(j % int(rooms.size()) != room_roll);
+      }
+   }
+   
+   // Place entry and exit
+   // Place entry in rooms[0]
+   rooms[0].is_entry = true;
+   // Do breadth first search for last conected room and place exit there
+   int depth = 0;
+   int index = 0;
+   for(int i = 0; i < int(rooms.size()); ++i)
+   {
+      if(rooms[i].depth > depth)
+      {
+         index = i;
+         depth = rooms[i].depth;
+      }
+   }
+   rooms[index].is_exit = true;
    
    // Draw
    for(int i = 0; i < int(rooms.size()); ++i)
    {
       drawRoom(rooms[i], map);
    }
-   for(int i = 0; i < conns.size(); ++i)
+   for(int i = 0; i < int(conns.size()); ++i)
    {
       drawRoom(conns[i], map);
    }
 
-   // Place entry and exit
-   // Place entry in rooms[0]
-   // Do breadth first search for last conected room and place exit there
    
-   // Spawn monsters and create chests
+   // Spawn monsters and traps and create chests
    // Place chest with frequency scaling with number connections (Low connection == High chest percentage)
+   // Higher percentage if behind locked doors ??
+   for(int i = 0; i < int(rooms.size()); ++i)
+   {
+   }
+
    // Place traps
+   
+   // Place monsters (higher percentage in rooms with chests)
    
    return map;
 }

@@ -37,6 +37,8 @@ struct Sprite
    ,  Door
    ,  DoorVertical
    ,  DoorHorizontal
+   ,  DoorLockedVertical
+   ,  DoorLockedHorizontal
    ,  Chest
    ,  LeverLeft
    ,  LeverRight
@@ -118,6 +120,8 @@ struct SpriteContainer
       m_container[Sprite::Door]          = Sprite{'D', color_pairs[COLOR::WHITE][COLOR::RED]};
       m_container[Sprite::DoorVertical]  = Sprite{'|', color_pairs[COLOR::WHITE][COLOR::BLACK]};
       m_container[Sprite::DoorHorizontal]= Sprite{'_', color_pairs[COLOR::WHITE][COLOR::BLACK]};
+      m_container[Sprite::DoorLockedVertical]  = Sprite{'|', color_pairs[COLOR::YELLOW][COLOR::BLACK]};
+      m_container[Sprite::DoorLockedHorizontal]= Sprite{'_', color_pairs[COLOR::YELLOW][COLOR::BLACK]};
       m_container[Sprite::DungeonStairsUp]   = Sprite{'<', color_pairs[COLOR::WHITE][COLOR::BLACK]};
       m_container[Sprite::DungeonStairsDown] = Sprite{'>', color_pairs[COLOR::WHITE][COLOR::BLACK]};
       m_container[Sprite::LeverLeft]     = Sprite{'\\', color_pairs[COLOR::CYAN][COLOR::BLACK]};
