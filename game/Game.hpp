@@ -82,6 +82,7 @@ struct Game
    void drawActors()
    {
       player.draw(map);
+      
       for(auto& actor : actors)
       {
          if(actor)
@@ -164,6 +165,9 @@ inline void handleMapExit(WorldMap::Exit exit)
       case WorldMap::Exit::West:
          instance->map.exitWest(x_world_new, y_world_new);
          break;
+      case WorldMap::Exit::Special:
+         instance->map.exitSpecial(x_world_new, y_world_new);
+         break;
       default:
          break;
    }
@@ -211,6 +215,10 @@ inline void handleMapExit(WorldMap::Exit exit)
             case WorldMap::Exit::West:
                instance->player.x = instance->map.x_size - 1;
                break;
+            case WorldMap::Exit::Special:
+               instance->player.x  = instance->map.x_entry;
+               instance->player.y  = instance->map.y_entry;
+               break;
             default:
                break;
          }
@@ -246,6 +254,10 @@ inline void initialize()
          {
             handleMapExit(WorldMap::Exit::North);
          }
+         if(game_map.isSpecialMapExit(player, player.x, player.y))
+         {
+            handleMapExit(WorldMap::Exit::Special);
+         }
       }
    };
 
@@ -259,6 +271,11 @@ inline void initialize()
          else if(game_map.isMapExit(player, player.x, player.y + 1))
          {
             handleMapExit(WorldMap::Exit::South);
+         }
+         
+         if(game_map.isSpecialMapExit(player, player.x, player.y))
+         {
+            handleMapExit(WorldMap::Exit::Special);
          }
       }
    };
@@ -274,6 +291,10 @@ inline void initialize()
          {
             handleMapExit(WorldMap::Exit::West);
          }
+         if(game_map.isSpecialMapExit(player, player.x, player.y))
+         {
+            handleMapExit(WorldMap::Exit::Special);
+         }
       }
    };
 
@@ -287,6 +308,10 @@ inline void initialize()
          else if(game_map.isMapExit(player, player.x + 1, player.y))
          {
             handleMapExit(WorldMap::Exit::East);
+         }
+         if(game_map.isSpecialMapExit(player, player.x, player.y))
+         {
+            handleMapExit(WorldMap::Exit::Special);
          }
       }
    };

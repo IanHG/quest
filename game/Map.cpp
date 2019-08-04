@@ -25,7 +25,7 @@ Map Map::load(const std::string& map_name)
 {
    if(map_name.empty())
    {
-      return GenerateDungeon();
+      return GenerateDungeon(70, 40, 1);
    }
 
    Map map;
@@ -258,6 +258,14 @@ bool Map::isMapExit(const Actor& actor, int x, int y) const
 }
 
 /**
+ *
+ **/
+bool Map::isSpecialMapExit(const Actor& actor, int x, int y) const
+{
+   return m_map[y + this->y_size * x].exit;
+}
+
+/**
  * Draw map to framebuffer
  **/
 void Map::draw() const
@@ -320,7 +328,7 @@ int midPoint(int x1, int x2)
 /**
  *
  **/
-Map GenerateDungeon(int map_x_size, int map_y_size)
+Map GenerateDungeon(int map_x_size, int map_y_size, int floor_level)
 {
    /**
     * Some local structs and functions
@@ -334,6 +342,13 @@ Map GenerateDungeon(int map_x_size, int map_y_size)
    enum class Type     : int { Room, NSCon, EWCon };
    enum class ConnType : int { None, N, S, E, W, NW, NE, SW, SE };
 
+   struct Property
+   {
+      enum Type : int { None, HasKey, HasEntry, HasExit, LockedDoor };
+
+      Type type;
+   };
+
    struct Room
    {
       // Top left
@@ -346,7 +361,8 @@ Map GenerateDungeon(int map_x_size, int map_y_size)
       bool  draw      = true;
       int   depth     = 0;
       int   index     = -1;
-
+      
+      Property properties[10] = { {Property::None} };
       bool  has_key   = false;
       bool  is_entry  = false;
       bool  is_exit   = false;
@@ -355,6 +371,20 @@ Map GenerateDungeon(int map_x_size, int map_y_size)
       int   from        = -1;
       int   to          = -1;
       bool  door_locked = false;
+   
+      // Add property to room, returns 'true' if property was added, otherwise returns 'false'
+      bool addProperty(const Property& property)
+      {
+         for(int i = 0; i < 10; ++i)
+         {
+            if(properties[i].type == Property::None)
+            {
+               properties[i] = property;
+               return true;
+            }
+         }
+         return false;
+      }
    };
 
    struct Range
@@ -472,7 +502,10 @@ Map GenerateDungeon(int map_x_size, int map_y_size)
             {
                int roll_x = rollDieRange(room.l.x + 1, room.r.x - 1);
                int roll_y = rollDieRange(room.l.y + 1, room.r.y - 1);
-            
+
+               map.x_entry = roll_x;
+               map.y_entry = roll_y;
+               
                map.m_map[roll_y + map.y_size * roll_x].sprite = Graphics::getSprite(Graphics::Sprite::DungeonStairsUp);
             }
             if(room.is_exit)
@@ -481,6 +514,7 @@ Map GenerateDungeon(int map_x_size, int map_y_size)
                int roll_y = rollDieRange(room.l.y + 1, room.r.y - 1);
             
                map.m_map[roll_y + map.y_size * roll_x].sprite = Graphics::getSprite(Graphics::Sprite::DungeonStairsDown);
+               map.m_map[roll_y + map.y_size * roll_x].exit   = true;
             }
          }
          default:
@@ -757,22 +791,29 @@ Map GenerateDungeon(int map_x_size, int map_y_size)
          } while(j % int(rooms.size()) != room_roll);
       }
    }
+
+   // Lock some doors with levers
    
    // Place entry and exit
    // Place entry in rooms[0]
    rooms[0].is_entry = true;
-   // Do breadth first search for last conected room and place exit there
-   int depth = 0;
-   int index = 0;
-   for(int i = 0; i < int(rooms.size()); ++i)
+
+   // Place exit if not last floor
+   if(floor_level < WorldMap::y_size)
    {
-      if(rooms[i].depth > depth)
+      // Do breadth first search for last conected room and place exit there
+      int depth = 0;
+      int index = 0;
+      for(int i = 0; i < int(rooms.size()); ++i)
       {
-         index = i;
-         depth = rooms[i].depth;
+         if(rooms[i].depth > depth)
+         {
+            index = i;
+            depth = rooms[i].depth;
+         }
       }
+      rooms[index].is_exit = true;
    }
-   rooms[index].is_exit = true;
    
    // Draw
    for(int i = 0; i < int(rooms.size()); ++i)

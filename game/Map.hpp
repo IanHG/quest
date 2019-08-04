@@ -26,6 +26,7 @@ struct Environment
    bool passable = true;
    bool pushable = false;
    bool toxic    = false;
+   bool exit     = false;
    
    // On move over
    using function_type    = std::function<void(Map&, Environment&, Actor&)>;
@@ -100,7 +101,10 @@ struct Map
    // Off set when drawing
    int x_offset = 0;
    int y_offset = 0;
-    
+
+   int x_entry = 0;
+   int y_entry = 0;
+
    // Map
    EnvironmentArray m_map          = EnvironmentArray{nullptr};
    WindowIndex      m_window_index = Graphics::Gui::WindowIndex{0};
@@ -118,6 +122,8 @@ struct Map
    bool isMoveOkay(const Actor& actor, int y, int x) const;
 
    bool isMapExit(const Actor& actor, int x, int y) const;
+   
+   bool isSpecialMapExit(const Actor& actor, int x, int y) const;
    
    // Trigger enviroment move on
    void moveOn(Actor& actor)
@@ -148,6 +154,11 @@ struct Map
    {
       x_world -= 1;
    }
+   // 
+   void exitSpecial(int& x_world, int& y_world) const
+   {
+      x_world += 1;
+   }
 
    // Draw map
    void draw() const;
@@ -174,7 +185,7 @@ struct WorldMap
    static constexpr int string_size        = 64;
    char world[x_size][y_size][string_size] = {nullptr};
 
-   enum Exit : int { North, South, East, West };
+   enum Exit : int { North, South, East, West, Special };
 
    int x_world = 0;
    int y_world = 0;
@@ -188,7 +199,7 @@ struct WorldMap
 };
 
 // Generate dungeon
-Map GenerateDungeon(int map_x_size = 70, int map_y_size = 40);
+Map GenerateDungeon(int map_x_size = 70, int map_y_size = 40, int floor_level = WorldMap::y_size);
 
 /**
  *
