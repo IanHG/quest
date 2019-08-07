@@ -20,7 +20,8 @@ inline WINDOW* create_newwin(int height, int width, int starty, int startx)
 	box(local_win, 0 , 0);		/* 0, 0 gives default characters 
 					 * for the vertical and horizontal
 					 * lines			*/
-	wrefresh(local_win);		/* Show that box 		*/
+	//wrefresh(local_win);		/* Show that box 		*/
+   wnoutrefresh(local_win);
 
 	return local_win;
 }
@@ -46,7 +47,9 @@ inline void destroy_win(WINDOW *local_win)
 	 * 8. bl: character to be used for the bottom left corner of the window 
 	 * 9. br: character to be used for the bottom right corner of the window
 	 */
-	wrefresh(local_win);
+	//wrefresh(local_win);
+   wnoutrefresh(local_win);
+      
 	delwin(local_win);
 }
 
@@ -139,7 +142,8 @@ struct Window
 
    void refresh()
    {
-      wrefresh(win);
+      //wrefresh(win);
+      wnoutrefresh(win);
    }
 };
 
@@ -214,8 +218,10 @@ struct BorderWindow
    //! Refresh window
    void refresh()
    {
-      wrefresh(win_border);
-      wrefresh(win);
+      wnoutrefresh(win_border);
+      wnoutrefresh(win);
+      //wrefresh(win_border);
+      //wrefresh(win);
    }
 };
 

@@ -8,9 +8,17 @@
 
 #include "../graphics/Gui.hpp"
 #include "Keyboard.hpp"
+#include "Console.hpp"
+#include "Editor.hpp"
 
 namespace Engine
 {
+
+struct
+{
+   Editor  editor;
+   Console console;
+} engine;
 
 struct Frame
 {
@@ -45,7 +53,21 @@ void initialize()
    // No time out on read
    timeout(0);
 
+   engine.console.editor = &engine.editor;
+
    Keyboard& kb = Keyboard::instance();
+   
+   kb.registerEvent('?', [&engine](){
+      if(engine.console.openOrClose(Console::BIG))
+      {
+         engine.editor.enable();
+      }
+      else
+      {
+         engine.editor.disable();
+      }
+   });
+
    kb.handle_noevent();
 }
 
@@ -62,10 +84,18 @@ void gameLoop(const std::function<bool()>& function)
       // Handle keyboard events
       kb.readEvents();
       kb.handleEvents();
+
+      if(engine.console.amIOpen())
+      {
+      }
       
       // Refresh gui
-      Graphics::Gui::instance->refresh();
       Graphics::Gui::instance->draw();
+      engine.console.draw();
+      
+      Graphics::Gui::instance->refresh();
+      wnoutrefresh(stdscr);
+      doupdate();
       
       // Wait for next frame
       frame.waitForNextFrame();

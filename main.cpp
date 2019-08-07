@@ -40,6 +40,7 @@ int main(int argc, char* argv[])
     ******************************************/
    Engine::gameLoop([](){ 
       auto& game = *Game::instance;
+      
       game.drawMap();
       game.drawActors();
       game.drawStats();

@@ -9,6 +9,11 @@ namespace Graphics
 
 int color_pairs[COLOR::SIZE][COLOR::SIZE];
 
+void curses_refresh()
+{
+   refresh();
+}
+
 /**
  * Initialize graphics
  **/

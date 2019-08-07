@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "Window.hpp"
+#include "Graphics.hpp"
 
 namespace Graphics
 {
@@ -57,32 +58,35 @@ struct Gui
    //! Create window
    static WindowIndex createWindow(WindowIndex parent, int x_size, int y_size, int x_offset, int y_offset)
    {
-      if(parent >= 0)
-      {
+      auto create_window = [&](WINDOW* parent){
          for(decltype(instance->windows.size()) i = 0; i < instance->windows.size(); ++i)
          {
             if(!instance->windows[i])
             {
                instance->windows[i] = IWindow::SmartPtr
                   {  new BorderWindow
-                     (  instance->windows[parent]->getWindow()
+                     (  parent
                      ,  y_size
                      ,  x_size
                      ,  x_offset
                      ,  y_offset
                      )
                   };
-               return i;
+               return WindowIndex(i);
             }
          }
+         return WindowIndex(Window::ERROR);
+      };
+      
+      // Create window
+      if(parent >= 0)
+      {
+         return create_window(instance->windows[parent]->getWindow());
       }
       else
       {
-         // not implemented yet
-         assert(false);
+         return create_window(nullptr);
       }
-
-      return Window::ERROR;
    }
 
    static void destroyWindow(WindowIndex window)

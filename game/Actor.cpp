@@ -149,7 +149,7 @@ void Item::interact(Actor& other)
    int pick_up = -1;
    
    // Create window to display pick up interaction
-   auto main_window   = Graphics::Gui::getWindow(Graphics::Gui::Window::MAIN);
+   auto main_window  = Graphics::Gui::getWindow(Graphics::Gui::Window::MAIN);
    auto window_index = Graphics::Gui::createWindow
       (  Graphics::Gui::Window::MAIN
       ,  main_window->xMax()
@@ -160,13 +160,13 @@ void Item::interact(Actor& other)
    auto window = Graphics::Gui::getWindow(window_index);
 
    // Create event listener for encounter
-   MultiEventRegisterer<event_handler<char, void(const char&)> > mer;
+   MultiEventRegisterer<event_handler<ichtype, void()> > mer;
    
-   mer.addEvent('1', [&pick_up](const char&){
+   mer.addEvent('1', [&pick_up](){
       pick_up = 1;
    });
    
-   mer.addEvent('2', [&pick_up](const char&){
+   mer.addEvent('2', [&pick_up](){
       pick_up = 2;
    });
 

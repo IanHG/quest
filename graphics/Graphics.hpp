@@ -26,6 +26,8 @@ extern int color_pairs[COLOR::SIZE][COLOR::SIZE];
 
 using CharType = chtype;
 
+void curses_refresh();
+
 /**
  * Initialize graphics
  **/

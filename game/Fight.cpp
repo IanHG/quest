@@ -206,9 +206,9 @@ void Fight::start(Player& player, Character& other)
       );
 
    // Create event listener for encounter
-   MultiEventRegisterer<event_handler<char, void(const char&)> > mer;
+   MultiEventRegisterer<event_handler<ichtype, void()> > mer;
    
-   mer.addEvent('1', [this, &player, &other](const char&){
+   mer.addEvent('1', [this, &player, &other](){
       if(this->players_turn)
       {
          this->attack(player, other);
@@ -216,7 +216,7 @@ void Fight::start(Player& player, Character& other)
       }
    });
    
-   mer.addEvent('2', [this, &player, &other](const char&){
+   mer.addEvent('2', [this, &player, &other](){
       this->fight_ended = true;
    });
 
@@ -250,9 +250,9 @@ void Fight::start(Player& player, Character& other)
    mer.deregisterEvents(Engine::Keyboard::instance());
 
    // Output status of fight
-   MultiEventRegisterer<event_handler<char, void(const char&)> > fight_status_mer;
+   MultiEventRegisterer<event_handler<ichtype, void()> > fight_status_mer;
 
-   fight_status_mer.addEvent('1', [this, &player, &other](const char&){
+   fight_status_mer.addEvent('1', [this, &player, &other](){
       this->status_end = true;
    });
    fight_status_mer.registerEvents(Engine::Keyboard::instance());

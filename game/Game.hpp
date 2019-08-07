@@ -243,7 +243,7 @@ inline void initialize()
    auto& player   = instance->player;
    auto& game_map = instance->map;
 
-   auto move_up = [&player, &game_map](const char&) {
+   auto move_up = [&player, &game_map]() {
       if (!player.interacting && !instance->checkInteraction(player, player.x, player.y - 1))
       {
          if (game_map.isMoveOkay(player, player.y - 1, player.x))
@@ -261,7 +261,7 @@ inline void initialize()
       }
    };
 
-   auto move_down = [&player, &game_map](const char&) {
+   auto move_down = [&player, &game_map]() {
       if (!player.interacting && !instance->checkInteraction(player, player.x, player.y + 1))
       {
 	      if (game_map.isMoveOkay(player, player.y + 1, player.x)) 
@@ -280,7 +280,7 @@ inline void initialize()
       }
    };
 
-   auto move_left = [&player, &game_map](const char&) {
+   auto move_left = [&player, &game_map]() {
       if (!player.interacting && !instance->checkInteraction(player, player.x - 1, player.y))
       {
 	      if (game_map.isMoveOkay(player, player.y, player.x - 1)) 
@@ -298,7 +298,7 @@ inline void initialize()
       }
    };
 
-   auto move_right = [&player, &game_map](const char&) {
+   auto move_right = [&player, &game_map]() {
       if (!player.interacting && !instance->checkInteraction(player, player.x + 1, player.y))
       {
 	      if (game_map.isMoveOkay(player, player.y, player.x + 1)) 
@@ -332,11 +332,11 @@ inline void initialize()
    //kb.register_event('Q', quit);
    //
    
-   instance->cheats.addKeyboardCombo(std::vector<char>{'i', 'd', 'd', 'q', 'd'}, [](){
+   instance->cheats.addKeyboardCombo(std::vector<ichtype>{'i', 'd', 'd', 'q', 'd'}, [](){
       Graphics::Gui::instance->message("LOL DOOM\n");
    });
 
-   instance->cheats.addKeyboardCombo(std::vector<char>{'i', 'd', 'c', 'l', 'i', 'p'}, [&player](){
+   instance->cheats.addKeyboardCombo(std::vector<ichtype>{'i', 'd', 'c', 'l', 'i', 'p'}, [&player](){
       if(!player.noclip)
       {
          Graphics::Gui::instance->message("Nothing can stop me!\n");

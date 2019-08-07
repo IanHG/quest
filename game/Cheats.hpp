@@ -7,6 +7,8 @@
 namespace Game
 {
 
+using Engine::ichtype;
+
 struct Cheats
 {
    std::vector<std::unique_ptr<Engine::KeyboardCombo> > combos;
@@ -15,7 +17,7 @@ struct Cheats
    {
    }
 
-   void addKeyboardCombo(std::vector<char> combo, std::function<void()> function)
+   void addKeyboardCombo(std::vector<ichtype> combo, std::function<void()> function)
    {
       auto& kb = Engine::Keyboard::instance();
       combos.emplace_back(std::unique_ptr<Engine::KeyboardCombo>{ new Engine::KeyboardCombo{combo, function, kb} });

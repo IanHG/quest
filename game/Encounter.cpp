@@ -11,7 +11,9 @@
 #include "../event_handler.hpp"
 
 namespace Game
-{
+{ 
+
+using Engine::ichtype;
 
 /**
  * Start encounter
@@ -29,11 +31,11 @@ void Conversation::start(Player& player)
    Dialog dialog = Dialog::load(std::string("default"));
 
    // Create event listener for encounter
-   MultiEventRegisterer<event_handler<char, void(const char&)> > mer;
+   MultiEventRegisterer<event_handler<ichtype, void()> > mer;
    
    for(int i = 1; i < 10; ++i)
    {
-      mer.addEvent(char(i + 48), [&dialog, i](const char&){
+      mer.addEvent(ichtype(i + 48), [&dialog, i](){
          dialog.option(i);
       });
    }
