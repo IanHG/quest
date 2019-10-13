@@ -43,6 +43,8 @@ void finalize();
  **/
 void drawCell(WINDOW* win, int x, int y, CharType symbol, int color_pair);
 
+void invertColor(WINDOW* win, int x, int y);
+
 } /* namespace Graphics */
 
 #endif /* QUEST_GRAPHICS_GRAPHICS_HPP_INCLUDED */

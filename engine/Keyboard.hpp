@@ -100,7 +100,7 @@ class Keyboard
          ichtype ch;
          while((ch = getch()) != ERR)
          {
-            Graphics::Gui::instance->message(std::to_string(ch));
+            Graphics::Gui::instance->message(std::to_string(ch) + " ");
             KeyboardQueue::update(ch);
          }
       }
@@ -182,6 +182,9 @@ struct KeyboardCombo
       m_register[0].deregisterEvent(m_keyboard);
    }
 };
+
+//
+using KeyboardRegisterer = MultiEventRegisterer<event_handler<ichtype, void()> >;
 
 } /* namespace Engine */
 

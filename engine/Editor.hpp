@@ -24,6 +24,7 @@ struct EditorString
 
    void insert(char c)
    {
+      Graphics::Gui::instance->message("insert: " + std::to_string(c) + "\n");
       if(position != current_size)
       {
          for(int i = current_size; i > position; --i)
@@ -36,18 +37,25 @@ struct EditorString
       ++position;
    }
 
-   void del()
+   void del(bool inplace = false)
    {
       Graphics::Gui::instance->message("deleting\n");
       if(position != current_size)
       {
-         for(int i = position; i < current_size; ++i)
+         for(int i = inplace ? position + 1 : position; i < current_size; ++i)
          {
             str[i - 1] = str[i];
          }
       }
-      --current_size;
-      --position;
+
+      if(position > 0 && (!inplace || position == current_size))
+      {
+         --position;
+      }
+      if(current_size > 0)
+      {
+         --current_size;
+      }
    }
 
    void incrPosition()
@@ -89,12 +97,19 @@ struct EditorString
       int n_copy = std::min(size, str_size);
       memcpy(str, ptr, n_copy);
       str[n_copy] = '\0';
+      current_size = n_copy;
+      position     = n_copy;
    }
 };
 
 struct Editor
 {
-   MultiEventRegisterer<event_handler<ichtype, void()> > mer;
+   enum Events : int { UTILITY, ALPHA, NUMERIC, SPECIAL, ALL };
+
+   MultiEventRegisterer<event_handler<ichtype, void()> > mer_utility;
+   MultiEventRegisterer<event_handler<ichtype, void()> > mer_alpha;
+   MultiEventRegisterer<event_handler<ichtype, void()> > mer_numeric;
+   MultiEventRegisterer<event_handler<ichtype, void()> > mer_special;
 
    EditorString str;
 
@@ -104,8 +119,8 @@ struct Editor
    {
       // Alphanumeric keys
       #define generate_alpha_event(C) \
-         mer.addEvent(C     , [this](){ str.insert(C); } ); \
-         mer.addEvent(C + 32, [this](){ str.insert(C + 32); } );
+         mer_alpha.addEvent(C     , [this](){ str.insert(C); } ); \
+         mer_alpha.addEvent(C + 32, [this](){ str.insert(C + 32); } );
 
       generate_alpha_event('A');
       generate_alpha_event('B');
@@ -134,17 +149,21 @@ struct Editor
       generate_alpha_event('Y');
       generate_alpha_event('Z');
       
-      generate_alpha_event('.');
-      generate_alpha_event(':');
-      generate_alpha_event(',');
-      generate_alpha_event(';');
-      generate_alpha_event('?');
-      generate_alpha_event('!');
-
       #undef generate_alpha_event
       
+      #define generate_special_event(S) \
+         mer_special.addEvent(S, [this](){ str.insert(S); } );
+      
+      generate_special_event('.');
+      generate_special_event(':');
+      generate_special_event(',');
+      generate_special_event(';');
+      generate_special_event('?');
+      generate_special_event('!');
+
+      
       #define generate_numeric_event(N) \
-         mer.addEvent(N, [this](){ str.insert(N); } );
+         mer_numeric.addEvent(N, [this](){ str.insert(N); } );
 
       generate_numeric_event('1');
       generate_numeric_event('2');
@@ -160,20 +179,23 @@ struct Editor
       #undef generate_numeric_event
       
       // Space
-      mer.addEvent(' ', [this](){ str.insert(' '); } );
+      mer_utility.addEvent(' ', [this](){ str.insert(' '); } );
 
       // Arrow keys
-      mer.addEvent(KEY_LEFT  , [this](){ str.decrPosition(); } );
-      mer.addEvent(260       , [this](){ str.decrPosition(); } );
-      mer.addEvent(KEY_RIGHT , [this](){ str.incrPosition(); } );
-      mer.addEvent(261       , [this](){ str.incrPosition(); } );
+      //mer_utility.addEvent(KEY_LEFT  , [this](){ str.decrPosition(); } );
+      mer_utility.addEvent(260       , [this](){ str.decrPosition(); } );
+      //mer_utility.addEvent(KEY_RIGHT , [this](){ str.incrPosition(); } );
+      mer_utility.addEvent(261       , [this](){ str.incrPosition(); } );
 
       // Special keys
-      //mer.addEvent(KEY_ENTER    , [this](){ str.clear(); } );
-      //mer.addEvent(10           , [this](){ str.clear(); } );
-      mer.addEvent(KEY_DL       , [this](){ Graphics::Gui::instance->message("DELTE\n"); str.del(); } );
-      mer.addEvent(KEY_BACKSPACE, [this](){ Graphics::Gui::instance->message("DELTE\n"); str.del(); } );
-      mer.addEvent(263, [this](){ Graphics::Gui::instance->message("DELTE\n"); str.del(); } );
+      //mer_utility.addEvent(KEY_ENTER    , [this](){ str.clear(); } );
+      //mer_utility.addEvent(10           , [this](){ str.clear(); } );
+      mer_utility.addEvent(KEY_DL       , [this](){ str.del(); } );
+      mer_utility.addEvent(KEY_BACKSPACE, [this](){ str.del(); } );
+      mer_utility.addEvent(263          , [this](){ str.del(); } );
+      
+      // Delete inplace
+      mer_utility.addEvent(330, [this](){ str.del(true); } );
 
       //#define KEY_ESC 27
 
@@ -185,14 +207,54 @@ struct Editor
       //#undef KEY_ESC
    }
 
-   void enable()
+   void enable(Events events)
    {
-      mer.registerEvents(Engine::Keyboard::instance());
+      switch(events)
+      {
+         case UTILITY:
+            mer_utility.registerEvents(Engine::Keyboard::instance());
+            break;
+         case ALPHA:
+            mer_alpha.registerEvents(Engine::Keyboard::instance());
+            break;
+         case NUMERIC:
+            mer_numeric.registerEvents(Engine::Keyboard::instance());
+            break;
+         case SPECIAL:
+            mer_special.registerEvents(Engine::Keyboard::instance());
+            break;
+         case ALL:
+            mer_utility.registerEvents(Engine::Keyboard::instance());
+            mer_alpha.registerEvents(Engine::Keyboard::instance());
+            mer_numeric.registerEvents(Engine::Keyboard::instance());
+            mer_special.registerEvents(Engine::Keyboard::instance());
+            break;
+      }
    }
 
-   void disable()
+   void disable(Events events)
    {
-      mer.deregisterEvents(Engine::Keyboard::instance());
+      switch(events)
+      {
+         case UTILITY:
+            mer_utility.deregisterEvents(Engine::Keyboard::instance());
+            break;
+         case ALPHA:
+            mer_alpha.deregisterEvents(Engine::Keyboard::instance());
+            break;
+         case NUMERIC:
+            mer_numeric.deregisterEvents(Engine::Keyboard::instance());
+            break;
+         case SPECIAL:
+            mer_special.deregisterEvents(Engine::Keyboard::instance());
+            break;
+         case ALL:
+            mer_utility.deregisterEvents(Engine::Keyboard::instance());
+            mer_alpha.deregisterEvents(Engine::Keyboard::instance());
+            mer_numeric.deregisterEvents(Engine::Keyboard::instance());
+            mer_special.deregisterEvents(Engine::Keyboard::instance());
+            break;
+      }
    }
 };
 

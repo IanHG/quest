@@ -318,19 +318,12 @@ inline void initialize()
    
    kb.registerEvent('w',    move_up);
    kb.registerEvent('W',    move_up);
-   //kb.registerEvent(KEY_UP, move_up);
    kb.registerEvent('s',      move_down);
    kb.registerEvent('S',      move_down);
-   //kb.registerEvent(KEY_DOWN, move_down);
    kb.registerEvent('a',      move_left);
    kb.registerEvent('A',      move_left);
-   //kb.registerEvent(KEY_LEFT, move_left);
    kb.registerEvent('d',       move_right);
    kb.registerEvent('D',       move_right);
-   //kb.register_event(KEY_RIGHT, move_right);
-   //kb.register_event('q', quit);
-   //kb.register_event('Q', quit);
-   //
    
    instance->cheats.addKeyboardCombo(std::vector<ichtype>{'i', 'd', 'd', 'q', 'd'}, [](){
       Graphics::Gui::instance->message("LOL DOOM\n");

@@ -16,8 +16,14 @@ namespace Engine
 
 struct
 {
-   Editor  editor;
-   Console console;
+   Editor             editor;
+   Console            console;
+
+   // Keyboard binds
+   KeyboardRegisterer game_keyboard;   // Note, not used
+   KeyboardRegisterer engine_keyboard; // Note, not used...
+
+   //
 } engine;
 
 struct Frame
@@ -60,11 +66,13 @@ void initialize()
    kb.registerEvent('?', [&engine](){
       if(engine.console.openOrClose(Console::BIG))
       {
-         engine.editor.enable();
+         engine.editor.enable(Editor::UTILITY);
+         engine.editor.enable(Editor::ALPHA);
+         engine.editor.enable(Editor::NUMERIC);
       }
       else
       {
-         engine.editor.disable();
+         engine.editor.disable(Editor::ALL);
       }
    });
 
@@ -77,18 +85,14 @@ void initialize()
 void gameLoop(const std::function<bool()>& function)
 {
    Keyboard& kb = Keyboard::instance();
-   kb.handle_noevent();
 
+   kb.handle_noevent();
    while (function())
    {
       // Handle keyboard events
       kb.readEvents();
       kb.handleEvents();
 
-      if(engine.console.amIOpen())
-      {
-      }
-      
       // Refresh gui
       Graphics::Gui::instance->draw();
       engine.console.draw();

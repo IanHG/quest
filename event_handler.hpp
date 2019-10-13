@@ -307,6 +307,18 @@ class MultiEventRegisterer
          m_events.emplace_back();
          m_events.back().setEvent(event, function);
       }
+
+      // Deregister single event
+      void deregisterEvent(event_handler_t& evh, const event_t& event)
+      {
+         for(auto& ev : m_events)
+         {
+            if(ev.m_event == event)
+            {
+               ev.deregisterEvent(evh);
+            }
+         }
+      }
       
       // Register event with event handler
       void registerEvents(event_handler_t& evh)

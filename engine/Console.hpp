@@ -25,14 +25,22 @@ namespace Engine
  **/
 struct ChatMessage
 {
-   char* message = nullptr;
-   int   size    = 0;
+   char* message  = nullptr;
+   int   size     = 0;
+   
+   char* reply      = nullptr;
+   int   reply_size = 0;
+   bool  executed   = false;
 
    ~ChatMessage()
    {
       if(message)
       {
          free(message);
+      }
+      if(reply)
+      {
+         free(reply);
       }
    }
 };
@@ -48,8 +56,8 @@ struct Console
 {
    using open_type = int;
    enum : open_type {
-      BIG    = 10,
-      SMALL  = 3,
+      BIG    = 20,
+      SMALL  = 5,
       CLOSED = 0,
    };
 
@@ -57,7 +65,7 @@ struct Console
    static constexpr int chat_sequence_size  = 100;
    ChatMessage   chat_sequence[chat_sequence_size];
    int           current_chat_sequence = 0;
-   int           marked_chat_sequence = 0;
+   int           marked_chat_sequence  = 0;
 
    Editor* editor;
    MultiEventRegisterer<event_handler<ichtype, void()> > mer;
@@ -65,7 +73,7 @@ struct Console
    //
    open_type open_t = 0;        /* openness now */
    open_type open_t_target = 0; /* openness target */
-   open_type open_t_max = 70;    /* openness max */
+   open_type open_t_max = 70;   /* openness max */
    open_type dopen_dt = 1;      /* delta openness (rate of openning) */
 
    // window stuff
@@ -83,6 +91,16 @@ struct Console
    void updateOpenness();
 
    bool openOrClose(open_type extent);
+};
+
+/**
+ *
+ **/
+struct ConsoleCommands
+{
+   using command_map_type = std::map<const char[], void(const char*[], int)>;
+
+   command_map_type commands;
 };
 
 } /* namespace Engine */

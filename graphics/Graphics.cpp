@@ -87,4 +87,12 @@ void drawCell(WINDOW* win, int x, int y, CharType symbol, int color_pair)
    wattroff(win, COLOR_PAIR(color_pair));
 }
 
+/**
+ *
+ **/
+void invertColor(WINDOW* win, int x, int y)
+{
+   assert(false);
+}
+
 } /* namespace Graphics */
