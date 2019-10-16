@@ -28,8 +28,8 @@ void Pushable::interact(Actor& other)
       int x_old = this->x;
       int y_old = this->y;
 
-      performMove(*this, x_new, y_new);
-      performMove(other, x_old, y_old);
+      moveCharacter(*this, x_new, y_new);
+      moveCharacter(other, x_old, y_old);
    }
 }
 

@@ -16,6 +16,7 @@ namespace Engine
 
 struct
 {
+   // Console and editor
    Editor             editor;
    Console            console;
 

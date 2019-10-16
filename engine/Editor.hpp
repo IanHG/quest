@@ -215,7 +215,7 @@ struct Editor
             mer_utility.registerEvents(Engine::Keyboard::instance());
             break;
          case ALPHA:
-            mer_alpha.registerEvents(Engine::Keyboard::instance());
+            mer_alpha  .registerEvents(Engine::Keyboard::instance());
             break;
          case NUMERIC:
             mer_numeric.registerEvents(Engine::Keyboard::instance());
@@ -225,7 +225,7 @@ struct Editor
             break;
          case ALL:
             mer_utility.registerEvents(Engine::Keyboard::instance());
-            mer_alpha.registerEvents(Engine::Keyboard::instance());
+            mer_alpha  .registerEvents(Engine::Keyboard::instance());
             mer_numeric.registerEvents(Engine::Keyboard::instance());
             mer_special.registerEvents(Engine::Keyboard::instance());
             break;
@@ -240,7 +240,7 @@ struct Editor
             mer_utility.deregisterEvents(Engine::Keyboard::instance());
             break;
          case ALPHA:
-            mer_alpha.deregisterEvents(Engine::Keyboard::instance());
+            mer_alpha  .deregisterEvents(Engine::Keyboard::instance());
             break;
          case NUMERIC:
             mer_numeric.deregisterEvents(Engine::Keyboard::instance());
@@ -250,7 +250,7 @@ struct Editor
             break;
          case ALL:
             mer_utility.deregisterEvents(Engine::Keyboard::instance());
-            mer_alpha.deregisterEvents(Engine::Keyboard::instance());
+            mer_alpha  .deregisterEvents(Engine::Keyboard::instance());
             mer_numeric.deregisterEvents(Engine::Keyboard::instance());
             mer_special.deregisterEvents(Engine::Keyboard::instance());
             break;

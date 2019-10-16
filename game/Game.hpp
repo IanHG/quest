@@ -139,12 +139,6 @@ inline bool checkMove(const Actor& actor, int x, int y)
    return instance->map.isMoveOkay(actor, y, x);
 }
 
-inline void performMove(Actor& actor, int x, int y)
-{
-   instance->map.moveOff(actor);
-   actor.set_xy(x, y);
-   instance->map.moveOn(actor);
-}
 
 inline void handleMapExit(WorldMap::Exit exit)
 {
@@ -226,6 +220,10 @@ inline void handleMapExit(WorldMap::Exit exit)
    }
 }
 
+//! Move an actor.
+void moveCharacter(Actor& actor, int x, int y, bool relative = true);
+
+//! Initalize game state
 inline void initialize()
 {
    seedRolls();
@@ -246,84 +244,39 @@ inline void initialize()
    auto move_up = [&player, &game_map]() {
       if (!player.interacting && !instance->checkInteraction(player, player.x, player.y - 1))
       {
-         if (game_map.isMoveOkay(player, player.y - 1, player.x))
-         {
-		      performMove(player, player.x, player.y - 1);
-         }
-         else if(game_map.isMapExit(player, player.x, player.y - 1))
-         {
-            handleMapExit(WorldMap::Exit::North);
-         }
-         if(game_map.isSpecialMapExit(player, player.x, player.y))
-         {
-            handleMapExit(WorldMap::Exit::Special);
-         }
+         moveCharacter(player, 0, -1, true);
       }
    };
 
    auto move_down = [&player, &game_map]() {
       if (!player.interacting && !instance->checkInteraction(player, player.x, player.y + 1))
       {
-	      if (game_map.isMoveOkay(player, player.y + 1, player.x)) 
-         {
-		      performMove(player, player.x, player.y + 1);
-	      }
-         else if(game_map.isMapExit(player, player.x, player.y + 1))
-         {
-            handleMapExit(WorldMap::Exit::South);
-         }
-         
-         if(game_map.isSpecialMapExit(player, player.x, player.y))
-         {
-            handleMapExit(WorldMap::Exit::Special);
-         }
+         moveCharacter(player, 0, 1, true);
       }
    };
 
    auto move_left = [&player, &game_map]() {
       if (!player.interacting && !instance->checkInteraction(player, player.x - 1, player.y))
       {
-	      if (game_map.isMoveOkay(player, player.y, player.x - 1)) 
-         {
-		      performMove(player, player.x - 1, player.y);
-	      }
-         else if(game_map.isMapExit(player, player.x - 1, player.y))
-         {
-            handleMapExit(WorldMap::Exit::West);
-         }
-         if(game_map.isSpecialMapExit(player, player.x, player.y))
-         {
-            handleMapExit(WorldMap::Exit::Special);
-         }
+         moveCharacter(player, -1, 0, true);
       }
    };
 
    auto move_right = [&player, &game_map]() {
       if (!player.interacting && !instance->checkInteraction(player, player.x + 1, player.y))
       {
-	      if (game_map.isMoveOkay(player, player.y, player.x + 1)) 
-         {
-		      performMove(player, player.x + 1, player.y);
-	      }
-         else if(game_map.isMapExit(player, player.x + 1, player.y))
-         {
-            handleMapExit(WorldMap::Exit::East);
-         }
-         if(game_map.isSpecialMapExit(player, player.x, player.y))
-         {
-            handleMapExit(WorldMap::Exit::Special);
-         }
+         moveCharacter(player, -1, 0, true);
       }
    };
    
-   kb.registerEvent('w',    move_up);
-   kb.registerEvent('W',    move_up);
-   kb.registerEvent('s',      move_down);
-   kb.registerEvent('S',      move_down);
-   kb.registerEvent('a',      move_left);
-   kb.registerEvent('A',      move_left);
-   kb.registerEvent('d',       move_right);
-   kb.registerEvent('D',       move_right);
+   kb.registerEvent('w', move_up);
+   kb.registerEvent('W', move_up);
+   kb.registerEvent('s', move_down);
+   kb.registerEvent('S', move_down);
+   kb.registerEvent('a', move_left);
+   kb.registerEvent('A', move_left);
+   kb.registerEvent('d', move_right);
+   kb.registerEvent('D', move_right);
    
    instance->cheats.addKeyboardCombo(std::vector<ichtype>{'i', 'd', 'd', 'q', 'd'}, [](){
       Graphics::Gui::instance->message("LOL DOOM\n");

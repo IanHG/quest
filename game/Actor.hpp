@@ -13,6 +13,7 @@
 
 #include "Encounter.hpp"
 #include "Item.hpp"
+#include "Factions.hpp"
 
 namespace Game
 {
@@ -36,6 +37,8 @@ struct Actor
    // Position
    int  x = 0;
    int  y = 0;
+
+   int map_index = 0;
    
    // 
    bool passable = false;
@@ -127,6 +130,9 @@ struct Character
    int hp_max       = 1;
    int mp           = 1;
    int mp_max       = 1;
+   
+   Faction        faction;
+   FactionTracker faction_tracker;
 
    struct InventoryCounter
    {
@@ -191,9 +197,9 @@ struct Npc
 
    Npc()
    {
-      Actor    ::type   = Actor::Type::Npc;
-      //encounter         = EncounterProxy{ std::unique_ptr<Encounter>{ new Conversation{} } };
-      encounter         = EncounterProxy{ std::unique_ptr<Encounter>{nullptr} };
+      Actor::type        = Actor::Type::Npc;
+      encounter          = EncounterProxy{ std::unique_ptr<Encounter>{nullptr} };
+      Character::faction = Faction::monsters;
    }
 
    virtual ~Npc() = default;
@@ -214,11 +220,13 @@ struct Player
 
    bool interacting = false;
 
+
    Player()
    {
-      Actor    ::type   = Actor::Type::Player;
-      Actor    ::sprite = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Player);
-      Character::hp     = 10;
+      Actor    ::type    = Actor::Type::Player;
+      Actor    ::sprite  = Graphics::SpriteContainer::instance->getSprite(Graphics::Sprite::Player);
+      Character::hp      = 10;
+      Character::faction = Faction::player;
    }
 
    virtual ~Player() = default;
