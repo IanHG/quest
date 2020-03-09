@@ -10,11 +10,15 @@
 namespace Engine
 {
 
+
+/**
+ * Needs to check that current_size does not go beyond str_size...
+ **/
 struct EditorString
 {
    static constexpr int str_size = 1024;
    char             str[str_size];
-   int              position = 0;
+   int              position     = 0;
    int              current_size = 0;
 
    EditorString()

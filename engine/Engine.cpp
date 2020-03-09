@@ -27,6 +27,10 @@ struct
    //
 } engine;
 
+
+/**
+ * Struct for controlling when to draw next frame.
+ **/
 struct Frame
 {
    decltype(std::chrono::milliseconds(int(1)/int(1))) frame      = std::chrono::milliseconds(1000 / 144);

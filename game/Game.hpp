@@ -265,7 +265,7 @@ inline void initialize()
    auto move_right = [&player, &game_map]() {
       if (!player.interacting && !instance->checkInteraction(player, player.x + 1, player.y))
       {
-         moveCharacter(player, -1, 0, true);
+         moveCharacter(player,  1, 0, true);
       }
    };
    

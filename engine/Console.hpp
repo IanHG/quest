@@ -46,6 +46,13 @@ struct ChatMessage
 };
 
 /**
+ *
+ **/
+struct ConsoleCommands
+{
+};
+
+/**
  * Notes:
  *    Type Commands and get reply
  *    Autocompletion
@@ -67,7 +74,8 @@ struct Console
    int           current_chat_sequence = 0;
    int           marked_chat_sequence  = 0;
 
-   Editor* editor;
+   Editor*          editor;
+   ConsoleCommands* commands;
    MultiEventRegisterer<event_handler<ichtype, void()> > mer;
 
    //

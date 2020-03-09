@@ -27,7 +27,8 @@ ChatMessage* addConsoleMessageFromEditor(Console& console)
 
 void executeConsoleCommand(ChatMessage& message)
 {
-   auto loadReply = [](ChatMessage& reply, const std::string& reply_str){
+   auto loadReply = [](ChatMessage& reply, const std::string& reply_str)
+   {
       memcpy(reply.reply, reply_str.c_str(), reply_str.size());
       reply.reply[reply_str.size()] = '\0';
       reply.reply_size = reply_str.size();
@@ -43,7 +44,7 @@ void executeConsoleCommand(ChatMessage& message)
    if(console_command[0] == "echo")
    {
       std::string reply_str = "'";
-      for(int i = 1; i < console_command.size(); ++i)
+      for(int i = 1; i < int(console_command.size()); ++i)
       {
          reply_str += console_command[i];
       }
@@ -79,6 +80,7 @@ Console::Console()
          executeConsoleCommand(*chat_message);
       }
    } );
+
    mer.addEvent(10 , [this](){ 
       ChatMessage* chat_message = addConsoleMessageFromEditor(*this);
       if(chat_message)
@@ -101,6 +103,7 @@ Console::Console()
          marked_chat_sequence = std::max(0, (marked_chat_sequence - 1));
       }
    } );
+
    // key down
    mer.addEvent(258, [this](){ 
       int new_marked_chat_sequence = (marked_chat_sequence + 1) % chat_sequence_size;
